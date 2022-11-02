@@ -5,11 +5,29 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type Game struct{}
+type Game struct {
+	keys []ebiten.Key
+}
+
+var validInputKeys []ebiten.Key = []ebiten.Key{
+	ebiten.KeyArrowLeft,
+	ebiten.KeyArrowRight,
+	ebiten.KeyArrowUp,
+	ebiten.KeyArrowDown,
+}
 
 func (g *Game) Update() error {
+	// Listen for keyboard inputs.
+	g.keys = inpututil.AppendPressedKeys(g.keys[:0])
+	for _, validKey := range validInputKeys {
+		if keysIncludes(g.keys, validKey) {
+			g.handleKeyPress(validKey)
+		}
+	}
+
 	return nil
 }
 
@@ -27,4 +45,18 @@ func main() {
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func keysIncludes(keys []ebiten.Key, includes ebiten.Key) bool {
+	for _, key := range keys {
+		if key == includes {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (g *Game) handleKeyPress(key ebiten.Key) error {
+	return nil
 }
