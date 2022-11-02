@@ -2,26 +2,28 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	_ "image/png"
 	"log"
+	"math/rand"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/images"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Game struct {
 	inited bool
-	farmer *Farmer
 	op     ebiten.DrawImageOptions
+	farmer *Farmer
+	cows   []*Cow
 }
 
 const (
-	screenWidth  = 640
-	screenHeight = 480
+	screenWidth     = 640
+	screenHeight    = 480
+	defaultCowCount = 3
 )
 
 var (
@@ -52,15 +54,36 @@ func (g *Game) init() {
 		g.inited = true
 	}()
 
+	rand.Seed(time.Now().UnixNano())
+
 	w, h := ebitenImage.Size()
 	x := screenWidth / 2
 	y := screenHeight / 2
-	g.farmer = &Farmer{sprite: &Sprite{
-		imageWidth:  float64(w),
-		imageHeight: float64(h),
-		x:           float64(x),
-		y:           float64(y),
-	},
+	g.farmer = &Farmer{
+		sprite: &Sprite{
+			imageWidth:  float64(w),
+			imageHeight: float64(h),
+			x:           float64(x),
+			y:           float64(y),
+		},
+	}
+
+	for i := 0; i < defaultCowCount; i++ {
+		w, h := ebitenImage.Size()
+		x := rand.Intn(screenWidth)
+		y := rand.Intn(screenHeight)
+		vx := 1 - rand.Intn(3)
+		vy := 1 - rand.Intn(3)
+		g.cows = append(g.cows, &Cow{
+			sprite: &Sprite{
+				imageWidth:  float64(w),
+				imageHeight: float64(h),
+				x:           float64(x),
+				y:           float64(y),
+			},
+			vx: vx,
+			vy: vy,
+		})
 	}
 }
 
@@ -75,17 +98,29 @@ func (g *Game) Update() error {
 	g.HandleKeyPresses(keys)
 
 	// Update player state.
-	g.farmer.sprite.Update()
+	g.farmer.Update()
+
+	// Update cow states.
+	for _, cow := range g.cows {
+		cow.Update()
+	}
 
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	debugMsg := fmt.Sprintf("x: %.2f, y: %.2f", g.farmer.sprite.x, g.farmer.sprite.y)
+	// Farmer
 	g.op.GeoM.Reset()
 	g.op.GeoM.Translate(g.farmer.sprite.x, g.farmer.sprite.y)
 	screen.DrawImage(ebitenImage, &g.op)
-	ebitenutil.DebugPrint(screen, debugMsg)
+
+	// Cows
+	for index := range g.cows {
+		s := g.cows[index].sprite
+		g.op.GeoM.Reset()
+		g.op.GeoM.Translate(s.x, s.y)
+		screen.DrawImage(ebitenImage, &g.op)
+	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
