@@ -15,7 +15,6 @@ import (
 
 type Game struct {
 	inited bool
-	keys   []ebiten.Key
 	farmer *Farmer
 	op     ebiten.DrawImageOptions
 }
@@ -56,15 +55,12 @@ func (g *Game) init() {
 	w, h := ebitenImage.Size()
 	x := screenWidth / 2
 	y := screenHeight / 2
-	g.farmer = &Farmer{
-		sprite: &Sprite{
-			imageWidth:  w,
-			imageHeight: h,
-			x:           x,
-			y:           y,
-			vx:          0,
-			vy:          0,
-		},
+	g.farmer = &Farmer{sprite: &Sprite{
+		imageWidth:  float64(w),
+		imageHeight: float64(h),
+		x:           float64(x),
+		y:           float64(y),
+	},
 	}
 }
 
@@ -74,12 +70,9 @@ func (g *Game) Update() error {
 	}
 
 	// Listen for keyboard inputs.
-	g.keys = inpututil.AppendPressedKeys(g.keys[:0])
-	for _, validKey := range ValidInputKeys {
-		if KeysIncludes(g.keys, validKey) {
-			g.HandleKeyPress(validKey)
-		}
-	}
+	keys := []ebiten.Key{}
+	keys = inpututil.AppendPressedKeys(keys[:0])
+	g.HandleKeyPresses(keys)
 
 	// Update player state.
 	g.farmer.sprite.Update()
@@ -88,9 +81,9 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	debugMsg := fmt.Sprintf("x: %d, y: %d, vx: %d, vy: %d", g.farmer.sprite.x, g.farmer.sprite.y, g.farmer.sprite.vx, g.farmer.sprite.vy)
+	debugMsg := fmt.Sprintf("x: %.2f, y: %.2f", g.farmer.sprite.x, g.farmer.sprite.y)
 	g.op.GeoM.Reset()
-	g.op.GeoM.Translate(float64(g.farmer.sprite.x), float64(g.farmer.sprite.y))
+	g.op.GeoM.Translate(g.farmer.sprite.x, g.farmer.sprite.y)
 	screen.DrawImage(ebitenImage, &g.op)
 	ebitenutil.DebugPrint(screen, debugMsg)
 }
@@ -101,7 +94,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func main() {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
-	ebiten.SetWindowTitle("Hello, World!")
+	ebiten.SetWindowTitle("Ingen Ko På Isen!")
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
 	}

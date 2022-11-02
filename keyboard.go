@@ -19,16 +19,28 @@ func KeysIncludes(keys []ebiten.Key, includes ebiten.Key) bool {
 	return false
 }
 
-func (g *Game) HandleKeyPress(key ebiten.Key) error {
-	switch key {
-	case ebiten.KeyArrowLeft:
-		g.farmer.UpdateSpeed(-1, 0)
-	case ebiten.KeyArrowRight:
-		g.farmer.UpdateSpeed(1, 0)
-	case ebiten.KeyArrowDown:
-		g.farmer.UpdateSpeed(0, 1)
-	case ebiten.KeyArrowUp:
-		g.farmer.UpdateSpeed(0, -1)
+func (g *Game) HandleKeyPresses(keys []ebiten.Key) error {
+	pressedLeft := KeysIncludes(keys, ebiten.KeyArrowLeft)
+	pressedRight := KeysIncludes(keys, ebiten.KeyArrowRight)
+	pressedUp := KeysIncludes(keys, ebiten.KeyArrowUp)
+	pressedDown := KeysIncludes(keys, ebiten.KeyArrowDown)
+
+	if pressedLeft && pressedUp {
+		g.farmer.Move(DirectionLeftUp)
+	} else if pressedLeft && pressedDown {
+		g.farmer.Move(DirectionLeftDown)
+	} else if pressedLeft {
+		g.farmer.Move(DirectionLeft)
+	} else if pressedRight && pressedUp {
+		g.farmer.Move(DirectionRightUp)
+	} else if pressedRight && pressedDown {
+		g.farmer.Move(DirectionRightDown)
+	} else if pressedRight {
+		g.farmer.Move(DirectionRight)
+	} else if pressedUp {
+		g.farmer.Move(DirectionUp)
+	} else if pressedDown {
+		g.farmer.Move(DirectionDown)
 	}
 
 	return nil
