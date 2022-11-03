@@ -12,6 +12,8 @@ func (f *Farmer) Update() {
 	f.sprite.Update()
 }
 
-func (f *Farmer) Move(dir Direction) {
-	f.sprite.Move(dir, FarmerSpeedMultiplier)
+func (f *Farmer) Move(velocity Vector) {
+	velocity.Normalize()
+	velocity.Scale(FarmerSpeedMultiplier)
+	f.sprite.Move(velocity)
 }

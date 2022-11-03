@@ -5,6 +5,7 @@ import (
 	"image"
 	_ "image/png"
 	"log"
+	"math"
 	"math/rand"
 	"time"
 
@@ -72,8 +73,7 @@ func (g *Game) init() {
 		w, h := ebitenImage.Size()
 		x := rand.Intn(screenWidth)
 		y := rand.Intn(screenHeight)
-		vx := 1 - rand.Intn(3)
-		vy := 1 - rand.Intn(3)
+		dir := 2 * math.Pi * rand.Float64()
 		g.cows = append(g.cows, &Cow{
 			sprite: &Sprite{
 				imageWidth:  float64(w),
@@ -81,8 +81,10 @@ func (g *Game) init() {
 				x:           float64(x),
 				y:           float64(y),
 			},
-			vx: vx,
-			vy: vy,
+			velocity: &Vector{
+				dir: dir,
+				len: 1,
+			},
 		})
 	}
 }
@@ -90,6 +92,11 @@ func (g *Game) init() {
 func (g *Game) Update() error {
 	if !g.inited {
 		g.init()
+	}
+
+	// Listen for mouse inputs.
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+		g.HandleMouseLeftClick()
 	}
 
 	// Listen for keyboard inputs.

@@ -38,27 +38,7 @@ func (s *Sprite) Update() {
 	}
 }
 
-func (s *Sprite) Move(dir Direction, speedMult float64) {
-	switch dir {
-	case DirectionLeftUp:
-		s.x -= speedMult * MoveUnitDiagonal
-		s.y -= speedMult * MoveUnitDiagonal
-	case DirectionLeftDown:
-		s.x -= speedMult * MoveUnitDiagonal
-		s.y += speedMult * MoveUnitDiagonal
-	case DirectionLeft:
-		s.x -= speedMult * MoveUnitStraight
-	case DirectionRightUp:
-		s.x += speedMult * MoveUnitDiagonal
-		s.y -= speedMult * MoveUnitDiagonal
-	case DirectionRightDown:
-		s.x += speedMult * MoveUnitDiagonal
-		s.y += speedMult * MoveUnitDiagonal
-	case DirectionRight:
-		s.x += speedMult * MoveUnitStraight
-	case DirectionUp:
-		s.y -= speedMult * MoveUnitStraight
-	case DirectionDown:
-		s.y += speedMult * MoveUnitStraight
-	}
+func (s *Sprite) Move(velocity Vector) {
+	s.x += velocity.X()
+	s.y += velocity.Y()
 }
