@@ -64,8 +64,7 @@ func (g *Game) init() {
 		sprite: &Sprite{
 			imageWidth:  float64(w),
 			imageHeight: float64(h),
-			x:           float64(x),
-			y:           float64(y),
+			pos:         &Coordinate{float64(x), float64(y)},
 		},
 	}
 
@@ -78,8 +77,7 @@ func (g *Game) init() {
 			sprite: &Sprite{
 				imageWidth:  float64(w),
 				imageHeight: float64(h),
-				x:           float64(x),
-				y:           float64(y),
+				pos:         &Coordinate{float64(x), float64(y)},
 			},
 			velocity: &Vector{
 				dir: dir,
@@ -118,14 +116,14 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	// Farmer
 	g.op.GeoM.Reset()
-	g.op.GeoM.Translate(g.farmer.sprite.x, g.farmer.sprite.y)
+	g.op.GeoM.Translate(g.farmer.sprite.pos.x, g.farmer.sprite.pos.y)
 	screen.DrawImage(ebitenImage, &g.op)
 
 	// Cows
 	for index := range g.cows {
 		s := g.cows[index].sprite
 		g.op.GeoM.Reset()
-		g.op.GeoM.Translate(s.x, s.y)
+		g.op.GeoM.Translate(s.pos.x, s.pos.y)
 		screen.DrawImage(ebitenImage, &g.op)
 	}
 }

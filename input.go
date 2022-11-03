@@ -20,7 +20,7 @@ func KeysIncludes(keys []ebiten.Key, includes ebiten.Key) bool {
 }
 
 func (g *Game) HandleMouseLeftClick() error {
-	farmerPos := Coordinate{g.farmer.sprite.x, g.farmer.sprite.y}
+	farmerPos := g.farmer.sprite.Center()
 	x, y := ebiten.CursorPosition()
 	mousePos := Coordinate{float64(x), float64(y)}
 	velocity := VectorFromPoints(farmerPos, mousePos)
