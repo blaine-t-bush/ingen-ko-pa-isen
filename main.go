@@ -107,7 +107,7 @@ func (g *Game) Update() error {
 
 	// Update cow states.
 	for _, cow := range g.cows {
-		cow.Update()
+		cow.Update(g.farmer)
 	}
 
 	return nil

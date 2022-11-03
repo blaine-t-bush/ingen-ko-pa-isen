@@ -52,3 +52,13 @@ func VectorFromPoints(from Coordinate, to Coordinate) Vector {
 	y := to.y - from.y
 	return VectorFromXY(Coordinate{x, y})
 }
+
+func (p *Coordinate) DistanceFrom(from Coordinate) float64 {
+	dX := from.x - p.x
+	dY := from.y - p.y
+	return math.Sqrt(dX*dX + dY*dY)
+}
+
+func (p *Coordinate) WithinRadius(center Coordinate, r float64) bool {
+	return p.DistanceFrom(center) <= r
+}
