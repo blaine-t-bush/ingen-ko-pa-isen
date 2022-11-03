@@ -23,7 +23,7 @@ const (
 	screenWidth      = 640
 	screenHeight     = 480
 	defaultCowCount  = 10
-	defaultRockCount = 5
+	defaultRockCount = 1
 )
 
 var (
@@ -99,6 +99,7 @@ func (g *Game) Update() error {
 	g.HandleKeyPresses(keys)
 
 	// Update player state.
+	g.CheckFarmerCollision()
 	g.farmer.Update()
 
 	// Update cow states.
