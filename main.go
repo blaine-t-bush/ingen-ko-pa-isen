@@ -24,7 +24,7 @@ type Game struct {
 const (
 	screenWidth     = 640
 	screenHeight    = 480
-	defaultCowCount = 3
+	defaultCowCount = 5
 )
 
 var (
