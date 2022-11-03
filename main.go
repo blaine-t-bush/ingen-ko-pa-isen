@@ -22,10 +22,11 @@ type Game struct {
 const (
 	screenWidth     = 640
 	screenHeight    = 480
-	defaultCowCount = 5
+	defaultCowCount = 10
 )
 
 var (
+	titleImage  *ebiten.Image
 	farmerImage *ebiten.Image
 	cowImage    *ebiten.Image
 )
@@ -35,10 +36,14 @@ func init() {
 	// Now the byte slice is generated with //go:generate for Go 1.15 or older.
 	// If you use Go 1.16 or newer, it is strongly recommended to use //go:embed to embed the image file.
 	// See https://pkg.go.dev/embed for more details.
+	origTitleImage := NewImageFromFilePath("./assets/menu/title.png")
 	origFarmerImage := NewImageFromFilePath("./assets/sprites/farmer.png")
 	origCowImage := NewImageFromFilePath("./assets/sprites/cow.png")
 
 	var w, h int
+
+	w, h = origTitleImage.Size()
+	titleImage = ebiten.NewImage(w, h)
 
 	w, h = origFarmerImage.Size()
 	farmerImage = ebiten.NewImage(w, h)
@@ -48,6 +53,7 @@ func init() {
 
 	op := &ebiten.DrawImageOptions{}
 	op.ColorM.Scale(1, 1, 1, 1)
+	titleImage.DrawImage(origTitleImage, op)
 	farmerImage.DrawImage(origFarmerImage, op)
 	cowImage.DrawImage(origCowImage, op)
 }
@@ -60,29 +66,24 @@ func (g *Game) init() {
 	rand.Seed(time.Now().UnixNano())
 
 	w, h := farmerImage.Size()
-	x := screenWidth / 2
-	y := screenHeight / 2
 	g.farmer = &Farmer{
 		sprite: &Sprite{
 			imageWidth:  float64(w),
 			imageHeight: float64(h),
-			pos:         &Coordinate{float64(x), float64(y)},
+			pos:         &Coordinate{float64(screenWidth / 2), float64(screenHeight / 2)},
 		},
 	}
 
 	for i := 0; i < defaultCowCount; i++ {
 		w, h := cowImage.Size()
-		x := rand.Intn(screenWidth)
-		y := rand.Intn(screenHeight)
-		dir := 2 * math.Pi * rand.Float64()
 		g.cows = append(g.cows, &Cow{
 			sprite: &Sprite{
 				imageWidth:  float64(w),
 				imageHeight: float64(h),
-				pos:         &Coordinate{float64(x), float64(y)},
+				pos:         &Coordinate{float64(rand.Intn(screenWidth)), float64(rand.Intn(screenHeight))},
 			},
 			velocity: &Vector{
-				dir: dir,
+				dir: 2 * math.Pi * rand.Float64(),
 				len: 1,
 			},
 		})
@@ -118,6 +119,10 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	// Background
 	screen.Fill(color.NRGBA{0x0, 0xff, 0xff, 0xff})
+
+	// Title
+	g.op.GeoM.Reset()
+	screen.DrawImage(titleImage, &g.op)
 
 	// Farmer
 	g.op.GeoM.Reset()
