@@ -45,14 +45,28 @@ func (g *Game) CheckFarmerCollision() {
 			collidesRight, overlapRight := g.farmer.sprite.CollidesWithRightOf(*object.sprite)
 
 			if collidesTop {
-				g.farmer.sprite.pos.y -= overlapTop
+				if overlapTop >= overlapLeft && overlapTop >= overlapRight {
+					g.farmer.sprite.pos.y -= overlapTop
+				}
 			} else if collidesBottom {
-				g.farmer.sprite.pos.y += overlapBottom
-			} else if collidesLeft {
-				g.farmer.sprite.pos.x -= overlapLeft
-			} else if collidesRight {
-				g.farmer.sprite.pos.x += overlapRight
+				if overlapBottom >= overlapLeft && overlapBottom >= overlapRight {
+					g.farmer.sprite.pos.y += overlapBottom
+				}
 			}
+
+			if collidesLeft {
+				if overlapLeft >= overlapTop && overlapLeft >= overlapBottom {
+					g.farmer.sprite.pos.x -= overlapLeft
+				}
+			} else if collidesRight {
+				if overlapRight >= overlapTop && overlapRight >= overlapBottom {
+					g.farmer.sprite.pos.x += overlapRight
+				}
+			}
+
+			// if !collidesTop && !collidesBottom && !collidesLeft && !collidesRight {
+			// 	colliding = false
+			// }
 		}
 	}
 }
