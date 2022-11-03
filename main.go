@@ -4,7 +4,6 @@ import (
 	"image/color"
 	_ "image/png"
 	"log"
-	"math"
 	"math/rand"
 	"time"
 
@@ -65,28 +64,10 @@ func (g *Game) init() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	w, h := farmerImage.Size()
-	g.farmer = &Farmer{
-		sprite: &Sprite{
-			imageWidth:  float64(w),
-			imageHeight: float64(h),
-			pos:         &Coordinate{float64(screenWidth / 2), float64(screenHeight / 2)},
-		},
-	}
+	g.farmer = CreateFarmer(*farmerImage)
 
 	for i := 0; i < defaultCowCount; i++ {
-		w, h := cowImage.Size()
-		g.cows = append(g.cows, &Cow{
-			sprite: &Sprite{
-				imageWidth:  float64(w),
-				imageHeight: float64(h),
-				pos:         &Coordinate{float64(rand.Intn(screenWidth)), float64(rand.Intn(screenHeight))},
-			},
-			velocity: &Vector{
-				dir: 2 * math.Pi * rand.Float64(),
-				len: 1,
-			},
-		})
+		g.cows = append(g.cows, CreateRandomCow(*cowImage))
 	}
 }
 
