@@ -28,16 +28,16 @@ func (s *Sprite) Center() Coordinate {
 func (s *Sprite) Update() {
 	// Boundaries at left and right borders.
 	if s.pos.x < 0 {
-		s.pos.x = -s.pos.x
+		s.pos.x = -1
 	} else if mx := screenWidth - s.imageWidth; mx <= s.pos.x {
-		s.pos.x = 2*mx - s.pos.x
+		s.pos.x = 2*mx - 1
 	}
 
 	// Boundaries at top and bottom borders.
 	if s.pos.y < 0 {
-		s.pos.y = -s.pos.y
+		s.pos.y = -1
 	} else if my := screenHeight - s.imageHeight; my <= s.pos.y {
-		s.pos.y = 2*my - s.pos.y
+		s.pos.y = 2*my - 1
 	}
 }
 

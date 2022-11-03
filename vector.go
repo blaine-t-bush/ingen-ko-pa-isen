@@ -17,7 +17,13 @@ func (v *Vector) Y() float64 {
 
 func (v *Vector) SetXY(p Coordinate) {
 	v.len = math.Sqrt(p.x*p.x + p.y*p.y)
-	if p.x < 0 {
+	if p.x == 0 && p.y == 0 {
+		v.dir = 0
+	} else if p.x == 0 && p.y > 0 {
+		v.dir = math.Pi / 2
+	} else if p.x == 0 && p.y < 0 {
+		v.dir = -math.Pi / 2
+	} else if p.x < 0 {
 		v.dir = math.Pi - math.Atan(-p.y/p.x)
 	} else {
 		v.dir = math.Atan(p.y / p.x)
@@ -34,6 +40,24 @@ func (v *Vector) Scale(s float64) {
 
 func (v *Vector) Rotate(t float64) {
 	v.dir = t + v.dir
+}
+
+func (v *Vector) RemoveX() {
+	v.len = v.Y()
+	if math.Sin(v.dir) >= 0 {
+		v.dir = math.Pi / 2
+	} else {
+		v.dir = -math.Pi / 2
+	}
+}
+
+func (v *Vector) RemoveY() {
+	v.len = v.X()
+	if math.Cos(v.dir) >= 0 {
+		v.dir = 0
+	} else {
+		v.dir = math.Pi
+	}
 }
 
 func VectorFromXY(p Coordinate) Vector {

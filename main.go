@@ -99,7 +99,6 @@ func (g *Game) Update() error {
 	g.HandleKeyPresses(keys)
 
 	// Update player state.
-	g.CheckFarmerCollision()
 	g.farmer.Update()
 
 	// Update cow states.
