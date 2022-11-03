@@ -12,22 +12,25 @@ import (
 )
 
 type Game struct {
-	inited bool
-	op     ebiten.DrawImageOptions
-	farmer *Farmer
-	cows   []*Cow
+	inited  bool
+	op      ebiten.DrawImageOptions
+	farmer  *Farmer
+	cows    []*Cow
+	objects []*Object
 }
 
 const (
-	screenWidth     = 640
-	screenHeight    = 480
-	defaultCowCount = 10
+	screenWidth      = 640
+	screenHeight     = 480
+	defaultCowCount  = 10
+	defaultRockCount = 5
 )
 
 var (
 	titleImage  *ebiten.Image
 	farmerImage *ebiten.Image
 	cowImage    *ebiten.Image
+	rockImage   *ebiten.Image
 )
 
 func init() {
@@ -38,6 +41,7 @@ func init() {
 	origTitleImage := NewImageFromFilePath("./assets/menu/title.png")
 	origFarmerImage := NewImageFromFilePath("./assets/sprites/farmer.png")
 	origCowImage := NewImageFromFilePath("./assets/sprites/cow.png")
+	origRockImage := NewImageFromFilePath("./assets/sprites/rock.png")
 
 	var w, h int
 
@@ -50,11 +54,15 @@ func init() {
 	w, h = origCowImage.Size()
 	cowImage = ebiten.NewImage(w, h)
 
+	w, h = origRockImage.Size()
+	rockImage = ebiten.NewImage(w, h)
+
 	op := &ebiten.DrawImageOptions{}
 	op.ColorM.Scale(1, 1, 1, 1)
 	titleImage.DrawImage(origTitleImage, op)
 	farmerImage.DrawImage(origFarmerImage, op)
 	cowImage.DrawImage(origCowImage, op)
+	rockImage.DrawImage(origRockImage, op)
 }
 
 func (g *Game) init() {
@@ -68,6 +76,10 @@ func (g *Game) init() {
 
 	for i := 0; i < defaultCowCount; i++ {
 		g.cows = append(g.cows, CreateRandomCow(*cowImage))
+	}
+
+	for i := 0; i < defaultRockCount; i++ {
+		g.objects = append(g.objects, CreateRandomRock(*rockImage))
 	}
 }
 
@@ -116,6 +128,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.op.GeoM.Reset()
 		g.op.GeoM.Translate(s.pos.x, s.pos.y)
 		screen.DrawImage(cowImage, &g.op)
+	}
+
+	// Rocks
+	for index := range g.objects {
+		s := g.objects[index].sprite
+		g.op.GeoM.Reset()
+		g.op.GeoM.Translate(s.pos.x, s.pos.y)
+		screen.DrawImage(rockImage, &g.op)
 	}
 }
 
