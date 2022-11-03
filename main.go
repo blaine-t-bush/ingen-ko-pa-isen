@@ -1,8 +1,7 @@
 package main
 
 import (
-	"bytes"
-	"image"
+	"image/color"
 	_ "image/png"
 	"log"
 	"math"
@@ -10,7 +9,6 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/images"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
@@ -28,7 +26,8 @@ const (
 )
 
 var (
-	ebitenImage *ebiten.Image
+	farmerImage *ebiten.Image
+	cowImage    *ebiten.Image
 )
 
 func init() {
@@ -36,18 +35,21 @@ func init() {
 	// Now the byte slice is generated with //go:generate for Go 1.15 or older.
 	// If you use Go 1.16 or newer, it is strongly recommended to use //go:embed to embed the image file.
 	// See https://pkg.go.dev/embed for more details.
-	img, _, err := image.Decode(bytes.NewReader(images.Ebiten_png))
-	if err != nil {
-		log.Fatal(err)
-	}
-	origEbitenImage := ebiten.NewImageFromImage(img)
+	origFarmerImage := NewImageFromFilePath("./assets/sprites/farmer.png")
+	origCowImage := NewImageFromFilePath("./assets/sprites/cow.png")
 
-	w, h := origEbitenImage.Size()
-	ebitenImage = ebiten.NewImage(w, h)
+	var w, h int
+
+	w, h = origFarmerImage.Size()
+	farmerImage = ebiten.NewImage(w, h)
+
+	w, h = origCowImage.Size()
+	cowImage = ebiten.NewImage(w, h)
 
 	op := &ebiten.DrawImageOptions{}
-	op.ColorM.Scale(1, 1, 1, 0.5)
-	ebitenImage.DrawImage(origEbitenImage, op)
+	op.ColorM.Scale(1, 1, 1, 1)
+	farmerImage.DrawImage(origFarmerImage, op)
+	cowImage.DrawImage(origCowImage, op)
 }
 
 func (g *Game) init() {
@@ -57,7 +59,7 @@ func (g *Game) init() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	w, h := ebitenImage.Size()
+	w, h := farmerImage.Size()
 	x := screenWidth / 2
 	y := screenHeight / 2
 	g.farmer = &Farmer{
@@ -69,7 +71,7 @@ func (g *Game) init() {
 	}
 
 	for i := 0; i < defaultCowCount; i++ {
-		w, h := ebitenImage.Size()
+		w, h := cowImage.Size()
 		x := rand.Intn(screenWidth)
 		y := rand.Intn(screenHeight)
 		dir := 2 * math.Pi * rand.Float64()
@@ -114,17 +116,20 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	// Background
+	screen.Fill(color.NRGBA{0x0, 0xff, 0xff, 0xff})
+
 	// Farmer
 	g.op.GeoM.Reset()
 	g.op.GeoM.Translate(g.farmer.sprite.pos.x, g.farmer.sprite.pos.y)
-	screen.DrawImage(ebitenImage, &g.op)
+	screen.DrawImage(farmerImage, &g.op)
 
 	// Cows
 	for index := range g.cows {
 		s := g.cows[index].sprite
 		g.op.GeoM.Reset()
 		g.op.GeoM.Translate(s.pos.x, s.pos.y)
-		screen.DrawImage(ebitenImage, &g.op)
+		screen.DrawImage(cowImage, &g.op)
 	}
 }
 
