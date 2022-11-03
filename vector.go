@@ -2,11 +2,6 @@ package main
 
 import "math"
 
-type Coordinate struct {
-	x float64
-	y float64
-}
-
 type Vector struct {
 	len float64
 	dir float64 // angle in radians measured counter-clockwise from +X axis. recall that the +Y direction is down.
@@ -51,14 +46,4 @@ func VectorFromPoints(from Coordinate, to Coordinate) Vector {
 	x := to.x - from.x
 	y := to.y - from.y
 	return VectorFromXY(Coordinate{x, y})
-}
-
-func (p *Coordinate) DistanceFrom(from Coordinate) float64 {
-	dX := from.x - p.x
-	dY := from.y - p.y
-	return math.Sqrt(dX*dX + dY*dY)
-}
-
-func (p *Coordinate) WithinRadius(center Coordinate, r float64) bool {
-	return p.DistanceFrom(center) <= r
 }
