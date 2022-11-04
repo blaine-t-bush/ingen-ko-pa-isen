@@ -31,6 +31,7 @@ var (
 	farmerImage     *ebiten.Image
 	cowImage        *ebiten.Image
 	rockImage       *ebiten.Image
+	treeImage       *ebiten.Image
 	iceStreaksImage *ebiten.Image
 )
 
@@ -42,6 +43,7 @@ func init() {
 	farmerImage = prepareImage("./assets/sprites/farmer.png", op)
 	cowImage = prepareImage("./assets/sprites/cow.png", op)
 	rockImage = prepareImage("./assets/sprites/rock.png", op)
+	treeImage = prepareImage("./assets/sprites/tree.png", op)
 	iceStreaksImage = prepareImage("./assets/sprites/ice_streaks.png", op)
 }
 
@@ -63,11 +65,15 @@ func (g *Game) init() {
 
 	g.farmer = CreateFarmer(*farmerImage)
 
-	for i := 0; i < defaultRockCount; i++ {
+	for i := 0; i < 5; i++ {
 		g.objects = append(g.objects, g.CreateRandomObject(*rockImage, true))
 	}
 
-	for i := 0; i < defaultRockCount; i++ {
+	for i := 0; i < 3; i++ {
+		g.objects = append(g.objects, g.CreateRandomObject(*treeImage, true))
+	}
+
+	for i := 0; i < 10; i++ {
 		g.objects = append(g.objects, g.CreateRandomObject(*iceStreaksImage, false))
 	}
 
