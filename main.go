@@ -20,10 +20,8 @@ type Game struct {
 }
 
 const (
-	screenWidth      = 640
-	screenHeight     = 480
-	defaultCowCount  = 10
-	defaultRockCount = 10
+	screenWidth  = 640
+	screenHeight = 480
 )
 
 var (
@@ -32,6 +30,7 @@ var (
 	cowImage        *ebiten.Image
 	rockImage       *ebiten.Image
 	treeImage       *ebiten.Image
+	iceHoleImage    *ebiten.Image
 	iceStreaksImage *ebiten.Image
 )
 
@@ -44,6 +43,7 @@ func init() {
 	cowImage = prepareImage("./assets/sprites/cow.png", op)
 	rockImage = prepareImage("./assets/sprites/rock.png", op)
 	treeImage = prepareImage("./assets/sprites/tree.png", op)
+	iceHoleImage = prepareImage("./assets/sprites/ice_hole.png", op)
 	iceStreaksImage = prepareImage("./assets/sprites/ice_streaks.png", op)
 }
 
@@ -63,10 +63,12 @@ func (g *Game) init() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	g.farmer = CreateFarmer(*farmerImage)
-
 	for i := 0; i < 5; i++ {
 		g.objects = append(g.objects, g.CreateRandomObject(*rockImage, true))
+	}
+
+	for i := 0; i < 5; i++ {
+		g.objects = append(g.objects, g.CreateRandomObject(*iceHoleImage, true))
 	}
 
 	for i := 0; i < 3; i++ {
@@ -77,9 +79,11 @@ func (g *Game) init() {
 		g.objects = append(g.objects, g.CreateRandomObject(*iceStreaksImage, false))
 	}
 
-	for i := 0; i < defaultCowCount; i++ {
+	for i := 0; i < 5; i++ {
 		g.cows = append(g.cows, g.CreateRandomCow(*cowImage))
 	}
+
+	g.farmer = g.CreateFarmer(*farmerImage)
 }
 
 func (g *Game) Update() error {
@@ -104,8 +108,8 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	// Background
-	screen.Fill(color.NRGBA{0x0, 0xff, 0xff, 0xff})
+	// Background: 89BAFF
+	screen.Fill(color.NRGBA{0x89, 0xba, 0xff, 0xff})
 
 	// Objects
 	for index := range g.objects {
