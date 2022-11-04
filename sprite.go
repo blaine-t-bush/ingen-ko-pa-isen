@@ -25,22 +25,6 @@ func (s *Sprite) Center() Coordinate {
 	return Coordinate{x: s.pos.x + s.imageWidth/2, y: s.pos.y + s.imageHeight/2}
 }
 
-func (s *Sprite) Update() {
-	// Boundaries at left and right borders.
-	if s.pos.x <= 0 {
-		s.pos.x = 1
-	} else if s.pos.x+s.imageWidth >= screenWidth {
-		s.pos.x = screenWidth - s.imageWidth - 1
-	}
-
-	// Boundaries at top and bottom borders.
-	if s.pos.y <= 0 {
-		s.pos.y = 1
-	} else if s.pos.y+s.imageHeight >= screenHeight {
-		s.pos.y = screenHeight - s.imageHeight - 1
-	}
-}
-
 func (s *Sprite) Move(velocity Vector) {
 	s.pos.x += velocity.X()
 	s.pos.y += velocity.Y()
@@ -128,4 +112,34 @@ func (s *Sprite) CollidesWithRightOf(t Sprite) (bool, float64) {
 	}
 
 	return collides, overlap
+}
+
+func (s *Sprite) CollidesWithBorders() bool {
+	return s.pos.x <= 0 || s.pos.x+s.imageWidth >= screenWidth || s.pos.y <= 0 || s.pos.y+s.imageHeight >= screenHeight
+}
+
+func (g *Game) CheckCollision(s *Sprite) bool {
+	collides := false
+
+	// checks screen boundaries
+	if s.CollidesWithBorders() {
+		collides = true
+	}
+
+	// loop over objects
+	for _, object := range g.objects {
+		// if object is collidable and rectangle is within boundaries
+		if object.collidable {
+			collidesTop, _ := s.CollidesWithTopOf(*object.sprite)
+			collidesBottom, _ := s.CollidesWithBottomOf(*object.sprite)
+			collidesLeft, _ := s.CollidesWithLeftOf(*object.sprite)
+			collidesRight, _ := s.CollidesWithRightOf(*object.sprite)
+
+			if collidesTop || collidesBottom || collidesLeft || collidesRight {
+				collides = true
+			}
+		}
+	}
+
+	return collides
 }

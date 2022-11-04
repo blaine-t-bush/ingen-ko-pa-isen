@@ -10,59 +10,49 @@ import (
 const (
 	CowSpeedMultiplier    = 2
 	FarmerDetectionRadius = 120
+	WallDetectionRadius   = 5
 )
 
-type Cow struct {
-	sprite   *Sprite
-	velocity *Vector
+func (g *Game) UpdateCows() {
+	for _, cow := range g.cows {
+		// possibly choose a new wander direction
+		cow.velocity.dir = ChooseCowDirection(cow, g.farmer)
+
+		// update position based on velocity
+		g.MoveActor(*cow, *cow.velocity, CowSpeedMultiplier)
+	}
 }
 
-func (c *Cow) Update(f *Farmer) {
-	// Choose a new wander direction, possibly.
-	c.velocity.dir = c.ChooseDirection(f)
-
-	// Update position.
-	c.Move(*c.velocity)
-}
-
-func (c *Cow) ChooseDirection(f *Farmer) float64 {
-	dir := c.velocity.dir
+func ChooseCowDirection(cow *Actor, farmer *Actor) float64 {
+	dir := cow.velocity.dir
 
 	// Small chance to choose new direction.
 	if rand.Float64() >= 0.95 {
-		dir = c.velocity.dir + (math.Pi/2)*(0.5-rand.Float64())
+		dir = cow.velocity.dir + (math.Pi/2)*(0.5-rand.Float64())
+	}
+
+	// Moves away from walls.
+	if cow.sprite.pos.x <= WallDetectionRadius {
+		dir = 0
+	} else if cow.sprite.pos.x+cow.sprite.imageWidth >= screenWidth-WallDetectionRadius {
+		dir = math.Pi
+	} else if cow.sprite.pos.y <= WallDetectionRadius {
+		dir = math.Pi / 2
+	} else if cow.sprite.pos.y+cow.sprite.imageHeight >= screenHeight-WallDetectionRadius {
+		dir = -math.Pi / 2
 	}
 
 	// Flees directly away from farmer.
-	if c.sprite.pos.WithinRadius(f.sprite.Center(), FarmerDetectionRadius) {
-		dir = VectorFromPoints(f.sprite.Center(), c.sprite.Center()).dir
-	}
-
-	// Bounces off edges.
-	if c.sprite.pos.x <= 0 {
-		dir = 0
-	} else if c.sprite.pos.x+c.sprite.imageWidth >= screenWidth {
-		dir = math.Pi
-	}
-
-	if c.sprite.pos.y <= 0 {
-		dir = math.Pi / 2
-	} else if c.sprite.pos.y+c.sprite.imageHeight >= screenHeight {
-		dir = -math.Pi / 2
+	if cow.sprite.pos.WithinRadius(farmer.sprite.Center(), FarmerDetectionRadius) {
+		dir = VectorFromPoints(farmer.sprite.Center(), cow.sprite.Center()).dir
 	}
 
 	return dir
 }
 
-func (c *Cow) Move(velocity Vector) {
-	velocity.Normalize()
-	velocity.Scale(CowSpeedMultiplier)
-	c.sprite.Move(velocity)
-}
-
-func CreateRandomCow(img ebiten.Image) *Cow {
+func CreateRandomCow(img ebiten.Image) *Actor {
 	w, h := img.Size()
-	return &Cow{
+	return &Actor{
 		sprite: &Sprite{
 			imageWidth:  float64(w),
 			imageHeight: float64(h),

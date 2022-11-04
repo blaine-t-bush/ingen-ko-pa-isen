@@ -14,8 +14,8 @@ import (
 type Game struct {
 	inited  bool
 	op      ebiten.DrawImageOptions
-	farmer  *Farmer
-	cows    []*Cow
+	farmer  *Actor
+	cows    []*Actor
 	objects []*Object
 }
 
@@ -98,13 +98,8 @@ func (g *Game) Update() error {
 	keys = inpututil.AppendPressedKeys(keys[:0])
 	g.HandleKeyPresses(keys)
 
-	// Update player state.
-	g.farmer.Update()
-
 	// Update cow states.
-	for _, cow := range g.cows {
-		cow.Update(g.farmer)
-	}
+	g.UpdateCows()
 
 	return nil
 }

@@ -24,7 +24,7 @@ func (g *Game) HandleMouseLeftClick() error {
 	x, y := ebiten.CursorPosition()
 	mousePos := Coordinate{float64(x), float64(y)}
 	velocity := VectorFromPoints(farmerPos, mousePos)
-	g.MoveFarmer(velocity)
+	g.MoveActor(*g.farmer, velocity, FarmerSpeedMultiplier)
 	return nil
 }
 
@@ -54,7 +54,7 @@ func (g *Game) HandleKeyPresses(keys []ebiten.Key) error {
 			v = VectorFromXY(Coordinate{0, 1})
 		}
 
-		g.MoveFarmer(v)
+		g.MoveActor(*g.farmer, v, FarmerSpeedMultiplier)
 	}
 
 	return nil
