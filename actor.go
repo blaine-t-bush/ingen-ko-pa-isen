@@ -5,6 +5,23 @@ type Actor struct {
 	velocity *Vector
 }
 
+func (a *Actor) Shunt() {
+	// moves actor to just inside borders if they are at or outside border
+	// TODO also check for overlap with collidable objects
+
+	if a.sprite.pos.x <= 0 {
+		a.sprite.pos.x = 1
+	} else if a.sprite.pos.x+a.sprite.imageWidth >= screenWidth {
+		a.sprite.pos.x = screenWidth - a.sprite.imageWidth - 1
+	}
+
+	if a.sprite.pos.y <= 0 {
+		a.sprite.pos.y = 1
+	} else if a.sprite.pos.y+a.sprite.imageHeight >= screenHeight {
+		a.sprite.pos.y = screenHeight - a.sprite.imageHeight - 1
+	}
+}
+
 func (g *Game) MoveActor(a Actor, v Vector, speedMultiplier float64) {
 	v.Normalize()
 	v.Scale(speedMultiplier)
