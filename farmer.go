@@ -19,6 +19,11 @@ func (f *Farmer) Update() {
 func (g *Game) MoveFarmer(velocity Vector) {
 	velocity.Normalize()
 	velocity.Scale(FarmerSpeedMultiplier)
+	velocity = g.CheckMovementFarmer(velocity)
+	g.farmer.sprite.Move(velocity)
+}
+
+func (g *Game) CheckMovementFarmer(velocity Vector) Vector {
 	// check if move would result in collision
 	newSpriteX := &Sprite{
 		imageWidth:  g.farmer.sprite.imageWidth,
@@ -50,7 +55,7 @@ func (g *Game) MoveFarmer(velocity Vector) {
 		}
 	}
 
-	g.farmer.sprite.Move(velocity)
+	return velocity
 }
 
 func CreateFarmer(img ebiten.Image) *Farmer {
@@ -75,26 +80,6 @@ func (g *Game) CheckCollision(s *Sprite) bool {
 			collidesBottom, _ := s.CollidesWithBottomOf(*object.sprite)
 			collidesLeft, _ := s.CollidesWithLeftOf(*object.sprite)
 			collidesRight, _ := s.CollidesWithRightOf(*object.sprite)
-
-			// if collidesTop {
-			// 	if overlapTop >= overlapLeft && overlapTop >= overlapRight {
-			// 		g.farmer.sprite.pos.y -= overlapTop
-			// 	}
-			// } else if collidesBottom {
-			// 	if overlapBottom >= overlapLeft && overlapBottom >= overlapRight {
-			// 		g.farmer.sprite.pos.y += overlapBottom
-			// 	}
-			// }
-
-			// if collidesLeft {
-			// 	if overlapLeft >= overlapTop && overlapLeft >= overlapBottom {
-			// 		g.farmer.sprite.pos.x -= overlapLeft
-			// 	}
-			// } else if collidesRight {
-			// 	if overlapRight >= overlapTop && overlapRight >= overlapBottom {
-			// 		g.farmer.sprite.pos.x += overlapRight
-			// 	}
-			// }
 
 			if collidesTop || collidesBottom || collidesLeft || collidesRight {
 				collides = true
