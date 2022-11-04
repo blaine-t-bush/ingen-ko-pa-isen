@@ -9,16 +9,21 @@ func (a *Actor) Shunt() {
 	// moves actor to just inside borders if they are at or outside border
 	// TODO also check for overlap with collidable objects
 
-	if a.sprite.pos.x <= 0 {
-		a.sprite.pos.x = 1
-	} else if a.sprite.pos.x+a.sprite.imageWidth >= screenWidth {
-		a.sprite.pos.x = screenWidth - a.sprite.imageWidth - 1
+	collidesTop, overlapTop := a.sprite.CollidesWithTopBorder()
+	collidesBottom, overlapBottom := a.sprite.CollidesWithBottomBorder()
+	collidesLeft, overlapLeft := a.sprite.CollidesWithLeftBorder()
+	collidesRight, overlapRight := a.sprite.CollidesWithRightBorder()
+
+	if collidesTop {
+		a.sprite.pos.y += overlapTop + 1
+	} else if collidesBottom {
+		a.sprite.pos.y -= overlapBottom + 1
 	}
 
-	if a.sprite.pos.y <= 0 {
-		a.sprite.pos.y = 1
-	} else if a.sprite.pos.y+a.sprite.imageHeight >= screenHeight {
-		a.sprite.pos.y = screenHeight - a.sprite.imageHeight - 1
+	if collidesLeft {
+		a.sprite.pos.x += overlapLeft + 1
+	} else if collidesRight {
+		a.sprite.pos.x -= overlapRight + 1
 	}
 }
 

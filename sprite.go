@@ -114,8 +114,44 @@ func (s *Sprite) CollidesWithRightOf(t Sprite) (bool, float64) {
 	return collides, overlap
 }
 
+func (s *Sprite) CollidesWithTopBorder() (bool, float64) {
+	if s.pos.y <= 0 {
+		return true, s.pos.y
+	}
+
+	return false, 0
+}
+
+func (s *Sprite) CollidesWithBottomBorder() (bool, float64) {
+	if s.pos.y+s.imageHeight >= screenHeight {
+		return true, screenHeight - s.pos.y - s.imageHeight
+	}
+
+	return false, 0
+}
+
+func (s *Sprite) CollidesWithLeftBorder() (bool, float64) {
+	if s.pos.x <= 0 {
+		return true, s.pos.x
+	}
+
+	return false, 0
+}
+
+func (s *Sprite) CollidesWithRightBorder() (bool, float64) {
+	if s.pos.x+s.imageWidth >= screenWidth {
+		return true, screenWidth - s.pos.x - s.imageWidth
+	}
+
+	return false, 0
+}
+
 func (s *Sprite) CollidesWithBorders() bool {
-	return s.pos.x <= 0 || s.pos.x+s.imageWidth >= screenWidth || s.pos.y <= 0 || s.pos.y+s.imageHeight >= screenHeight
+	collidesTop, _ := s.CollidesWithTopBorder()
+	collidesBottom, _ := s.CollidesWithBottomBorder()
+	collidesLeft, _ := s.CollidesWithLeftBorder()
+	collidesRight, _ := s.CollidesWithRightBorder()
+	return collidesTop || collidesBottom || collidesLeft || collidesRight
 }
 
 func (g *Game) CheckCollision(s *Sprite) bool {
