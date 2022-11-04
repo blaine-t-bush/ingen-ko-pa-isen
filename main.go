@@ -23,46 +23,35 @@ const (
 	screenWidth      = 640
 	screenHeight     = 480
 	defaultCowCount  = 10
-	defaultRockCount = 1
+	defaultRockCount = 10
 )
 
 var (
-	titleImage  *ebiten.Image
-	farmerImage *ebiten.Image
-	cowImage    *ebiten.Image
-	rockImage   *ebiten.Image
+	titleImage      *ebiten.Image
+	farmerImage     *ebiten.Image
+	cowImage        *ebiten.Image
+	rockImage       *ebiten.Image
+	iceStreaksImage *ebiten.Image
 )
 
 func init() {
-	// Decode an image from the image file's byte slice.
-	// Now the byte slice is generated with //go:generate for Go 1.15 or older.
-	// If you use Go 1.16 or newer, it is strongly recommended to use //go:embed to embed the image file.
-	// See https://pkg.go.dev/embed for more details.
-	origTitleImage := NewImageFromFilePath("./assets/menu/title.png")
-	origFarmerImage := NewImageFromFilePath("./assets/sprites/farmer.png")
-	origCowImage := NewImageFromFilePath("./assets/sprites/cow.png")
-	origRockImage := NewImageFromFilePath("./assets/sprites/rock.png")
-
-	var w, h int
-
-	w, h = origTitleImage.Size()
-	titleImage = ebiten.NewImage(w, h)
-
-	w, h = origFarmerImage.Size()
-	farmerImage = ebiten.NewImage(w, h)
-
-	w, h = origCowImage.Size()
-	cowImage = ebiten.NewImage(w, h)
-
-	w, h = origRockImage.Size()
-	rockImage = ebiten.NewImage(w, h)
-
 	op := &ebiten.DrawImageOptions{}
 	op.ColorM.Scale(1, 1, 1, 1)
-	titleImage.DrawImage(origTitleImage, op)
-	farmerImage.DrawImage(origFarmerImage, op)
-	cowImage.DrawImage(origCowImage, op)
-	rockImage.DrawImage(origRockImage, op)
+
+	titleImage = prepareImage("./assets/menu/title.png", op)
+	farmerImage = prepareImage("./assets/sprites/farmer.png", op)
+	cowImage = prepareImage("./assets/sprites/cow.png", op)
+	rockImage = prepareImage("./assets/sprites/rock.png", op)
+	iceStreaksImage = prepareImage("./assets/sprites/ice_streaks.png", op)
+}
+
+func prepareImage(filePath string, op *ebiten.DrawImageOptions) *ebiten.Image {
+	origImage := NewImageFromFilePath(filePath)
+	w, h := origImage.Size()
+	image := ebiten.NewImage(w, h)
+	image.DrawImage(origImage, op)
+
+	return image
 }
 
 func (g *Game) init() {
@@ -74,12 +63,16 @@ func (g *Game) init() {
 
 	g.farmer = CreateFarmer(*farmerImage)
 
-	for i := 0; i < defaultCowCount; i++ {
-		g.cows = append(g.cows, CreateRandomCow(*cowImage))
+	for i := 0; i < defaultRockCount; i++ {
+		g.objects = append(g.objects, g.CreateRandomObject(*rockImage, true))
 	}
 
 	for i := 0; i < defaultRockCount; i++ {
-		g.objects = append(g.objects, CreateRandomRock(*rockImage))
+		g.objects = append(g.objects, g.CreateRandomObject(*iceStreaksImage, false))
+	}
+
+	for i := 0; i < defaultCowCount; i++ {
+		g.cows = append(g.cows, g.CreateRandomCow(*cowImage))
 	}
 }
 
@@ -108,30 +101,30 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Background
 	screen.Fill(color.NRGBA{0x0, 0xff, 0xff, 0xff})
 
-	// Title
-	g.op.GeoM.Reset()
-	screen.DrawImage(titleImage, &g.op)
-
-	// Farmer
-	g.op.GeoM.Reset()
-	g.op.GeoM.Translate(g.farmer.sprite.pos.x, g.farmer.sprite.pos.y)
-	screen.DrawImage(farmerImage, &g.op)
+	// Objects
+	for index := range g.objects {
+		s := g.objects[index].sprite
+		g.op.GeoM.Reset()
+		g.op.GeoM.Translate(s.pos.x, s.pos.y)
+		screen.DrawImage(s.image, &g.op)
+	}
 
 	// Cows
 	for index := range g.cows {
 		s := g.cows[index].sprite
 		g.op.GeoM.Reset()
 		g.op.GeoM.Translate(s.pos.x, s.pos.y)
-		screen.DrawImage(cowImage, &g.op)
+		screen.DrawImage(s.image, &g.op)
 	}
 
-	// Rocks
-	for index := range g.objects {
-		s := g.objects[index].sprite
-		g.op.GeoM.Reset()
-		g.op.GeoM.Translate(s.pos.x, s.pos.y)
-		screen.DrawImage(rockImage, &g.op)
-	}
+	// Farmer
+	g.op.GeoM.Reset()
+	g.op.GeoM.Translate(g.farmer.sprite.pos.x, g.farmer.sprite.pos.y)
+	screen.DrawImage(g.farmer.sprite.image, &g.op)
+
+	// Title
+	g.op.GeoM.Reset()
+	screen.DrawImage(titleImage, &g.op)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

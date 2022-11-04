@@ -13,6 +13,7 @@ func CreateFarmer(img ebiten.Image) *Actor {
 
 	return &Actor{
 		sprite: &Sprite{
+			image:       &img,
 			imageWidth:  float64(w),
 			imageHeight: float64(h),
 			pos:         &Coordinate{float64(screenWidth / 2), float64(screenHeight / 2)},

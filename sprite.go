@@ -1,5 +1,7 @@
 package main
 
+import "github.com/hajimehoshi/ebiten/v2"
+
 type Direction int
 
 const (
@@ -16,6 +18,7 @@ const (
 )
 
 type Sprite struct {
+	image       *ebiten.Image
 	imageWidth  float64
 	imageHeight float64
 	pos         *Coordinate
@@ -178,4 +181,53 @@ func (g *Game) CheckCollision(s *Sprite) bool {
 	}
 
 	return collides
+}
+
+type BoundingBox struct {
+	pos    Coordinate
+	width  float64
+	height float64
+}
+
+func (b *BoundingBox) Top() float64 {
+	return b.pos.y
+}
+
+func (b *BoundingBox) Bottom() float64 {
+	return b.pos.y + b.height
+}
+
+func (b *BoundingBox) Left() float64 {
+	return b.pos.x
+}
+
+func (b *BoundingBox) Right() float64 {
+	return b.pos.x + b.width
+}
+
+func (b *BoundingBox) TopLeft() Coordinate {
+	return b.pos
+}
+
+func (b *BoundingBox) TopRight() Coordinate {
+	return Coordinate{b.Right(), b.Top()}
+}
+
+func (b *BoundingBox) BottomLeft() Coordinate {
+	return Coordinate{b.Left(), b.Bottom()}
+}
+
+func (b *BoundingBox) BottomRight() Coordinate {
+	return Coordinate{b.Right(), b.Bottom()}
+}
+
+func (g *Game) OccupiedAreas() []BoundingBox {
+	var occupiedAreas []BoundingBox
+
+	// add objects to occupiedAreas
+	for _, object := range g.objects {
+		occupiedAreas = append(occupiedAreas, BoundingBox{*object.sprite.pos, object.sprite.imageWidth, object.sprite.imageHeight})
+	}
+
+	return occupiedAreas
 }

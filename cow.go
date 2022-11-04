@@ -53,14 +53,30 @@ func ChooseCowDirection(cow *Actor, farmer *Actor) float64 {
 	return dir
 }
 
-func CreateRandomCow(img ebiten.Image) *Actor {
+func (g *Game) CreateRandomCow(img ebiten.Image) *Actor {
 	w, h := img.Size()
+	potentialSprite := &Sprite{
+		image:       &img,
+		imageWidth:  float64(w),
+		imageHeight: float64(h),
+		pos:         &Coordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))},
+	}
+
+	for {
+		if g.CheckCollision(potentialSprite) {
+			potentialSprite = &Sprite{
+				image:       &img,
+				imageWidth:  float64(w),
+				imageHeight: float64(h),
+				pos:         &Coordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))},
+			}
+		} else {
+			break
+		}
+	}
+
 	return &Actor{
-		sprite: &Sprite{
-			imageWidth:  float64(w),
-			imageHeight: float64(h),
-			pos:         &Coordinate{float64(rand.Intn(screenWidth)), float64(rand.Intn(screenHeight))},
-		},
+		sprite: potentialSprite,
 		velocity: &Vector{
 			dir: 2 * math.Pi * rand.Float64(),
 			len: 1,
