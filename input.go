@@ -23,10 +23,13 @@ func (g *Game) HandleMouseLeftClick() error {
 	farmerPos := g.farmer.sprite.Center()
 	x, y := ebiten.CursorPosition()
 	mousePos := Coordinate{float64(x), float64(y)}
-	velocity := VectorFromPoints(farmerPos, mousePos)
-	velocity.Normalize()
-	velocity.Scale(FarmerSpeedMultiplier)
-	g.MoveActor(*g.farmer, velocity, FarmerSpeedMultiplier)
+	if !mousePos.WithinRadius(farmerPos, 2) {
+		velocity := VectorFromPoints(farmerPos, mousePos)
+		velocity.Normalize()
+		velocity.Scale(FarmerSpeedMultiplier)
+		g.MoveActor(*g.farmer, velocity, FarmerSpeedMultiplier)
+	}
+
 	return nil
 }
 
