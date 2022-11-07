@@ -27,11 +27,13 @@ func (v *Vector) SetXY(p Coordinate) {
 		v.dir = 0
 	} else if p.x < 0 && p.y == 0 {
 		v.dir = math.Pi
+	} else if p.x > 0 && p.y > 0 {
+		v.dir = math.Atan(p.y / p.x)
 	} else if p.x < 0 && p.y > 0 {
 		v.dir = math.Pi - math.Atan(-p.y/p.x)
 	} else if p.x < 0 && p.y < 0 {
 		v.dir = 3*math.Pi/2 - math.Atan(p.y/p.x)
-	} else if p.x > 0 && p.y > 0 {
+	} else if p.x > 0 && p.y < 0 {
 		v.dir = 2*math.Pi - math.Atan(-p.y/p.x)
 	} else {
 		v.dir = math.Atan(p.y / p.x)
@@ -48,6 +50,11 @@ func (v *Vector) Scale(s float64) {
 
 func (v *Vector) Rotate(t float64) {
 	v.dir = t + v.dir
+	v.BoundDirection()
+}
+
+func (v *Vector) BoundDirection() {
+	v.dir = math.Mod(v.dir, 2*math.Pi)
 }
 
 func (v *Vector) RemoveX() {
