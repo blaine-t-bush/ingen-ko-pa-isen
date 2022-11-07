@@ -22,9 +22,17 @@ func (v *Vector) SetXY(p Coordinate) {
 	} else if p.x == 0 && p.y > 0 {
 		v.dir = math.Pi / 2
 	} else if p.x == 0 && p.y < 0 {
-		v.dir = -math.Pi / 2
-	} else if p.x < 0 {
+		v.dir = 3 * math.Pi / 2
+	} else if p.x > 0 && p.y == 0 {
+		v.dir = 0
+	} else if p.x < 0 && p.y == 0 {
+		v.dir = math.Pi
+	} else if p.x < 0 && p.y > 0 {
 		v.dir = math.Pi - math.Atan(-p.y/p.x)
+	} else if p.x < 0 && p.y < 0 {
+		v.dir = 3*math.Pi/2 - math.Atan(p.y/p.x)
+	} else if p.x > 0 && p.y > 0 {
+		v.dir = 2*math.Pi - math.Atan(-p.y/p.x)
 	} else {
 		v.dir = math.Atan(p.y / p.x)
 	}
@@ -47,7 +55,7 @@ func (v *Vector) RemoveX() {
 	if math.Sin(v.dir) >= 0 {
 		v.dir = math.Pi / 2
 	} else {
-		v.dir = -math.Pi / 2
+		v.dir = 3 * math.Pi / 2
 	}
 }
 

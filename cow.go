@@ -39,23 +39,28 @@ func ChooseCowDirection(cow *Actor, farmer *Actor) float64 {
 
 	// Small chance to choose new direction.
 	if rand.Float64() >= 1-CowDirectionChangeProbability {
-		dir = 2 * math.Pi * cow.noiseDir.UpdateAndGetValue()
+		dir = cow.noiseDir.UpdateAndGetValueScaled(2 * math.Pi)
 	}
 
 	// Moves away from walls.
 	if cow.sprite.pos.x <= WallDetectionRadius {
 		dir = 0
+		cow.noiseDir.ChangeCoordinateToMatch(dir / (2 * math.Pi))
 	} else if cow.sprite.pos.x+cow.sprite.imageWidth >= screenWidth-WallDetectionRadius {
 		dir = math.Pi
+		cow.noiseDir.ChangeCoordinateToMatch(dir / (2 * math.Pi))
 	} else if cow.sprite.pos.y <= WallDetectionRadius {
 		dir = math.Pi / 2
+		cow.noiseDir.ChangeCoordinateToMatch(dir / (2 * math.Pi))
 	} else if cow.sprite.pos.y+cow.sprite.imageHeight >= screenHeight-WallDetectionRadius {
-		dir = -math.Pi / 2
+		dir = 3 * math.Pi / 2
+		cow.noiseDir.ChangeCoordinateToMatch(dir / (2 * math.Pi))
 	}
 
 	// Flees directly away from farmer.
 	if cow.sprite.pos.WithinRadius(farmer.sprite.Center(), FarmerDetectionRadius) {
 		dir = VectorFromPoints(farmer.sprite.Center(), cow.sprite.Center()).dir
+		cow.noiseDir.ChangeCoordinateToMatch(dir / (2 * math.Pi))
 	}
 
 	return dir
@@ -65,7 +70,7 @@ func ChooseCowSpeed(cow *Actor) float64 {
 	speed := cow.velocity.len
 
 	if rand.Float64() >= 1-CowSpeedChangeProbability {
-		speed = CowSpeedMultiplier * cow.noiseSpeed.UpdateAndGetValue()
+		speed = cow.noiseSpeed.UpdateAndGetValueScaled(CowSpeedMultiplier)
 	}
 
 	if speed < CowSpeedMin {
@@ -105,8 +110,8 @@ func (g *Game) CreateRandomCow(img ebiten.Image) *Actor {
 	return &Actor{
 		sprite: potentialSprite,
 		velocity: &Vector{
-			dir: 2 * math.Pi * rand.Float64(),
-			len: float64(CowSpeedMax) / 2,
+			dir: noiseDir.GetValueScaled(2 * math.Pi),
+			len: noiseSpeed.GetValueScaled(CowSpeedMultiplier),
 		},
 		noiseSpeed: &noiseSpeed,
 		noiseDir:   &noiseDir,

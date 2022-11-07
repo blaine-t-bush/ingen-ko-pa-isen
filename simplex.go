@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"math"
 	"math/rand"
 
 	"github.com/ojrac/opensimplex-go"
@@ -36,9 +38,18 @@ func (n *Noise) GetValue() float64 {
 	return n.image[n.y][n.x]
 }
 
+func (n *Noise) GetValueScaled(scale float64) float64 {
+	return scale * n.image[n.y][n.x]
+}
+
 func (n *Noise) UpdateAndGetValue() float64 {
 	n.UpdateCoordinate()
 	return n.GetValue()
+}
+
+func (n *Noise) UpdateAndGetValueScaled(scale float64) float64 {
+	n.UpdateCoordinate()
+	return n.GetValueScaled(scale)
 }
 
 func (n *Noise) UpdateCoordinate() {
@@ -70,4 +81,24 @@ func (n *Noise) UpdateCoordinate() {
 
 	n.x = newX
 	n.y = newY
+}
+
+func (n *Noise) ChangeCoordinateToMatch(value float64) {
+	diff := value
+	closestX := n.x
+	closestY := n.y
+
+	for y := 0; y < n.h; y++ {
+		for x := 0; x < n.w; x++ {
+			if math.Abs(n.image[y][x]-value) < diff {
+				diff = math.Abs(n.image[y][x] - value)
+				closestX = x
+				closestY = y
+				fmt.Println("ping")
+			}
+		}
+	}
+
+	n.x = closestX
+	n.y = closestY
 }
