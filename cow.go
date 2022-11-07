@@ -9,16 +9,22 @@ import (
 
 const (
 	CowSpeedMultiplier             = 2
+	CowSpeedMin                    = 0
+	CowSpeedMax                    = 2
 	FarmerDetectionRadius          = 120
 	WallDetectionRadius            = 5
 	CowNoiseSize                   = 50
 	CowNoiseDirectionModifierScale = 0.8
+	CowNoiseSpeedModifierScale     = 0.1
+	CowDirectionChangeProbability  = 0.05
+	CowSpeedChangeProbability      = 0.05
 )
 
 func (g *Game) UpdateCows() {
 	for _, cow := range g.cows {
 		// possibly choose a new wander direction
 		cow.velocity.dir = ChooseCowDirection(cow, g.farmer)
+		cow.velocity.len = ChooseCowSpeed(cow)
 
 		// update position based on velocity
 		g.MoveActor(*cow, *cow.velocity, CowSpeedMultiplier)
@@ -32,9 +38,8 @@ func ChooseCowDirection(cow *Actor, farmer *Actor) float64 {
 	dir := cow.velocity.dir
 
 	// Small chance to choose new direction.
-	if rand.Float64() >= 0.95 {
-		dirModifier := 0.5 - cow.noise.UpdateAndGetValue()
-		dir = cow.velocity.dir + dirModifier*CowNoiseDirectionModifierScale
+	if rand.Float64() >= 1-CowDirectionChangeProbability {
+		dir = 2 * math.Pi * cow.noiseDir.UpdateAndGetValue()
 	}
 
 	// Moves away from walls.
@@ -54,6 +59,22 @@ func ChooseCowDirection(cow *Actor, farmer *Actor) float64 {
 	}
 
 	return dir
+}
+
+func ChooseCowSpeed(cow *Actor) float64 {
+	speed := cow.velocity.len
+
+	if rand.Float64() >= 1-CowSpeedChangeProbability {
+		speed = CowSpeedMultiplier * cow.noiseSpeed.UpdateAndGetValue()
+	}
+
+	if speed < CowSpeedMin {
+		speed = CowSpeedMin
+	} else if speed > CowSpeedMax {
+		speed = CowSpeedMax
+	}
+
+	return speed
 }
 
 func (g *Game) CreateRandomCow(img ebiten.Image) *Actor {
@@ -78,14 +99,16 @@ func (g *Game) CreateRandomCow(img ebiten.Image) *Actor {
 		}
 	}
 
-	noise := GenerateNoise(CowNoiseSize, CowNoiseSize)
+	noiseSpeed := GenerateNoise(CowNoiseSize, CowNoiseSize)
+	noiseDir := GenerateNoise(CowNoiseSize, CowNoiseSize)
 
 	return &Actor{
 		sprite: potentialSprite,
 		velocity: &Vector{
 			dir: 2 * math.Pi * rand.Float64(),
-			len: 1,
+			len: float64(CowSpeedMax) / 2,
 		},
-		noise: &noise,
+		noiseSpeed: &noiseSpeed,
+		noiseDir:   &noiseDir,
 	}
 }

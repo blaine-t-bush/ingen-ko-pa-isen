@@ -1,9 +1,10 @@
 package main
 
 type Actor struct {
-	sprite   *Sprite
-	velocity *Vector
-	noise    *Noise
+	sprite     *Sprite
+	velocity   *Vector
+	noiseSpeed *Noise
+	noiseDir   *Noise
 }
 
 func (a *Actor) Shunt() {
@@ -29,8 +30,6 @@ func (a *Actor) Shunt() {
 }
 
 func (g *Game) MoveActor(a Actor, v Vector, speedMultiplier float64) {
-	v.Normalize()
-	v.Scale(speedMultiplier)
 	v = g.CheckMovementActor(a, v)
 	a.sprite.Move(v)
 }
