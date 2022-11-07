@@ -8,16 +8,14 @@ import (
 )
 
 const (
-	CowSpeedMultiplier             = 2
-	CowSpeedMin                    = 0
-	CowSpeedMax                    = 2
-	FarmerDetectionRadius          = 120
-	WallDetectionRadius            = 5
-	CowNoiseSize                   = 50
-	CowNoiseDirectionModifierScale = 0.8
-	CowNoiseSpeedModifierScale     = 0.1
-	CowDirectionChangeProbability  = 0.05
-	CowSpeedChangeProbability      = 0.05
+	CowSpeedMultiplier            = 2
+	CowSpeedMin                   = 0
+	CowSpeedMax                   = 2
+	FarmerDetectionRadius         = 100
+	WallDetectionRadius           = 5
+	CowNoiseSize                  = 100
+	CowDirectionChangeProbability = 0.05
+	CowSpeedChangeProbability     = 0.05
 )
 
 func (g *Game) UpdateCows() {
