@@ -36,6 +36,21 @@ func GenerateNoise(w, h int) Noise {
 	return noiseStruct
 }
 
+func (n *Noise) ToPixels() []byte {
+	pixels := []byte{}
+	for y := 0; y < n.h; y++ {
+		for x := 0; x < n.w; x++ {
+			byteVal := byte(n.image[y][x] * 255)
+			pixels = append(pixels, byteVal)
+			pixels = append(pixels, byteVal)
+			pixels = append(pixels, byteVal)
+			pixels = append(pixels, 1)
+		}
+	}
+
+	return pixels
+}
+
 func (n *Noise) Min() float64 {
 	min := 1.0
 
@@ -73,6 +88,16 @@ func (n *Noise) Normalize() {
 	for y := 0; y < n.h; y++ {
 		for x := 0; x < n.w; x++ {
 			n.image[y][x] = (copy.image[y][x] - min) / delta
+		}
+	}
+}
+
+func (n *Noise) Smooth() {
+	copy := *n
+
+	for y := 1; y < n.h-1; y++ {
+		for x := 1; x < n.w-1; x++ {
+			n.image[y][x] = (copy.image[y-1][x] + copy.image[y+1][x] + copy.image[y][x-1] + copy.image[y][x+1]) / 4
 		}
 	}
 }
@@ -131,7 +156,7 @@ func (n *Noise) SelectRandomNearbyCoordinate() {
 }
 
 func (n *Noise) SelectCoordinateToMatch(value float64) {
-	diff := value
+	diff := 1.0
 	closestX := n.x
 	closestY := n.y
 

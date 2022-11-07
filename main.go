@@ -67,7 +67,7 @@ func (g *Game) init() {
 		g.objects = append(g.objects, g.CreateRandomObject(*rockImage, true))
 	}
 
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 3; i++ {
 		g.objects = append(g.objects, g.CreateRandomObject(*iceHoleImage, true))
 	}
 
