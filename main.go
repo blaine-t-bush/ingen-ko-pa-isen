@@ -63,17 +63,17 @@ func (g *Game) init() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	// for i := 0; i < 5; i++ {
-	// 	g.objects = append(g.objects, g.CreateRandomObject(*rockImage, true))
-	// }
+	for i := 0; i < 1; i++ {
+		g.objects = append(g.objects, g.CreateRandomObject(*rockImage, true))
+	}
 
-	// for i := 0; i < 5; i++ {
-	// 	g.objects = append(g.objects, g.CreateRandomObject(*iceHoleImage, true))
-	// }
+	for i := 0; i < 1; i++ {
+		g.objects = append(g.objects, g.CreateRandomObject(*iceHoleImage, true))
+	}
 
-	// for i := 0; i < 3; i++ {
-	// 	g.objects = append(g.objects, g.CreateRandomObject(*treeImage, true))
-	// }
+	for i := 0; i < 1; i++ {
+		g.objects = append(g.objects, g.CreateRandomObject(*treeImage, true))
+	}
 
 	for i := 0; i < 10; i++ {
 		g.objects = append(g.objects, g.CreateRandomObject(*iceStreaksImage, false))
