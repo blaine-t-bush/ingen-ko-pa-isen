@@ -117,6 +117,41 @@ func (s *Sprite) CollidesWithRightOf(t Sprite) (bool, float64) {
 	return collides, overlap
 }
 
+func (s *Sprite) ContainedWithin(t Sprite) bool {
+	x1 := s.pos.x
+	x2 := s.pos.x + s.imageWidth
+	y1 := s.pos.y
+	y2 := s.pos.y + s.imageHeight
+	tx1 := t.pos.x
+	tx2 := t.pos.x + t.imageWidth
+	ty1 := t.pos.y
+	ty2 := t.pos.y + t.imageHeight
+
+	collides := false
+
+	if x1 >= tx1 && x2 <= tx2 && y1 >= ty1 && y2 <= ty2 {
+		collides = true
+	}
+
+	return collides
+}
+
+func (s *Sprite) CollidesWithSprite(t Sprite) bool {
+	collides := false
+
+	collidesTop, _ := s.CollidesWithTopOf(t)
+	collidesBottom, _ := s.CollidesWithBottomOf(t)
+	collidesLeft, _ := s.CollidesWithLeftOf(t)
+	collidesRight, _ := s.CollidesWithRightOf(t)
+	collidesWithin := s.ContainedWithin(t)
+
+	if collidesTop || collidesBottom || collidesLeft || collidesRight || collidesWithin {
+		collides = true
+	}
+
+	return collides
+}
+
 func (s *Sprite) CollidesWithTopBorder() (bool, float64) {
 	if s.pos.y <= 0 {
 		return true, s.pos.y
@@ -168,66 +203,59 @@ func (g *Game) CheckCollision(s *Sprite) bool {
 	// loop over objects
 	for _, object := range g.objects {
 		// if object is collidable and rectangle is within boundaries
-		if object.collidable {
-			collidesTop, _ := s.CollidesWithTopOf(*object.sprite)
-			collidesBottom, _ := s.CollidesWithBottomOf(*object.sprite)
-			collidesLeft, _ := s.CollidesWithLeftOf(*object.sprite)
-			collidesRight, _ := s.CollidesWithRightOf(*object.sprite)
-
-			if collidesTop || collidesBottom || collidesLeft || collidesRight {
-				collides = true
-			}
+		if object.collidable && s.CollidesWithSprite(*object.sprite) {
+			collides = true
 		}
 	}
 
 	return collides
 }
 
-type BoundingBox struct {
-	pos    Coordinate
-	width  float64
-	height float64
-}
+// type BoundingBox struct {
+// 	pos    Coordinate
+// 	width  float64
+// 	height float64
+// }
 
-func (b *BoundingBox) Top() float64 {
-	return b.pos.y
-}
+// func (b *BoundingBox) Top() float64 {
+// 	return b.pos.y
+// }
 
-func (b *BoundingBox) Bottom() float64 {
-	return b.pos.y + b.height
-}
+// func (b *BoundingBox) Bottom() float64 {
+// 	return b.pos.y + b.height
+// }
 
-func (b *BoundingBox) Left() float64 {
-	return b.pos.x
-}
+// func (b *BoundingBox) Left() float64 {
+// 	return b.pos.x
+// }
 
-func (b *BoundingBox) Right() float64 {
-	return b.pos.x + b.width
-}
+// func (b *BoundingBox) Right() float64 {
+// 	return b.pos.x + b.width
+// }
 
-func (b *BoundingBox) TopLeft() Coordinate {
-	return b.pos
-}
+// func (b *BoundingBox) TopLeft() Coordinate {
+// 	return b.pos
+// }
 
-func (b *BoundingBox) TopRight() Coordinate {
-	return Coordinate{b.Right(), b.Top()}
-}
+// func (b *BoundingBox) TopRight() Coordinate {
+// 	return Coordinate{b.Right(), b.Top()}
+// }
 
-func (b *BoundingBox) BottomLeft() Coordinate {
-	return Coordinate{b.Left(), b.Bottom()}
-}
+// func (b *BoundingBox) BottomLeft() Coordinate {
+// 	return Coordinate{b.Left(), b.Bottom()}
+// }
 
-func (b *BoundingBox) BottomRight() Coordinate {
-	return Coordinate{b.Right(), b.Bottom()}
-}
+// func (b *BoundingBox) BottomRight() Coordinate {
+// 	return Coordinate{b.Right(), b.Bottom()}
+// }
 
-func (g *Game) OccupiedAreas() []BoundingBox {
-	var occupiedAreas []BoundingBox
+// func (g *Game) OccupiedAreas() []Sprite {
+// 	var occupiedAreas []Sprite
 
-	// add objects to occupiedAreas
-	for _, object := range g.objects {
-		occupiedAreas = append(occupiedAreas, BoundingBox{*object.sprite.pos, object.sprite.imageWidth, object.sprite.imageHeight})
-	}
+// 	// add objects to occupiedAreas
+// 	for _, object := range g.objects {
+// 		occupiedAreas = append(occupiedAreas, *object.sprite)
+// 	}
 
-	return occupiedAreas
-}
+// 	return occupiedAreas
+// }

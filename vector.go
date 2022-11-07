@@ -32,7 +32,7 @@ func (v *Vector) SetXY(p Coordinate) {
 	} else if p.x < 0 && p.y > 0 {
 		v.dir = math.Pi - math.Atan(-p.y/p.x)
 	} else if p.x < 0 && p.y < 0 {
-		v.dir = 3*math.Pi/2 - math.Atan(p.y/p.x)
+		v.dir = math.Pi + math.Atan(p.y/p.x)
 	} else if p.x > 0 && p.y < 0 {
 		v.dir = 2*math.Pi - math.Atan(-p.y/p.x)
 	} else {

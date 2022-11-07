@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 
@@ -43,16 +42,21 @@ func (n *Noise) GetValueScaled(scale float64) float64 {
 }
 
 func (n *Noise) UpdateAndGetValue() float64 {
-	n.UpdateCoordinate()
+	n.SelectRandomNearbyCoordinate()
 	return n.GetValue()
 }
 
 func (n *Noise) UpdateAndGetValueScaled(scale float64) float64 {
-	n.UpdateCoordinate()
+	n.SelectRandomNearbyCoordinate()
 	return n.GetValueScaled(scale)
 }
 
-func (n *Noise) UpdateCoordinate() {
+func (n *Noise) SelectCoordinate(x int, y int) {
+	n.x = x
+	n.y = y
+}
+
+func (n *Noise) SelectRandomNearbyCoordinate() {
 	newX := n.x
 	newY := n.y
 
@@ -79,11 +83,10 @@ func (n *Noise) UpdateCoordinate() {
 		newY = n.h - 1
 	}
 
-	n.x = newX
-	n.y = newY
+	n.SelectCoordinate(newX, newY)
 }
 
-func (n *Noise) ChangeCoordinateToMatch(value float64) {
+func (n *Noise) SelectCoordinateToMatch(value float64) {
 	diff := value
 	closestX := n.x
 	closestY := n.y
@@ -94,11 +97,9 @@ func (n *Noise) ChangeCoordinateToMatch(value float64) {
 				diff = math.Abs(n.image[y][x] - value)
 				closestX = x
 				closestY = y
-				fmt.Println("ping")
 			}
 		}
 	}
 
-	n.x = closestX
-	n.y = closestY
+	n.SelectCoordinate(closestX, closestY)
 }

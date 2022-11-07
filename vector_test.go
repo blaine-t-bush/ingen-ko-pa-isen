@@ -5,14 +5,6 @@ import (
 	"testing"
 )
 
-const (
-	eps = 0.0001
-)
-
-func withinEps(a float64, b float64) bool {
-	return math.Abs(a-b) <= eps
-}
-
 func TestX(t *testing.T) {
 	helpX(t, 1, 0, 1)
 	helpX(t, 1, math.Pi/2, 0)
@@ -23,7 +15,7 @@ func TestX(t *testing.T) {
 
 func helpX(t *testing.T, len float64, dir float64, expectedX float64) {
 	v := Vector{len: len, dir: dir}
-	if !withinEps(v.X(), expectedX) {
+	if !WithinEps(v.X(), expectedX) {
 		t.Errorf("Expected vector to have x=%.2f, got x=%.2f", expectedX, v.X())
 	}
 }
@@ -38,7 +30,7 @@ func TestY(t *testing.T) {
 
 func helpY(t *testing.T, len float64, dir float64, expectedY float64) {
 	v := Vector{len: len, dir: dir}
-	if !withinEps(v.Y(), expectedY) {
+	if !WithinEps(v.Y(), expectedY) {
 		t.Errorf("Expected vector to have x=%.2f, got x=%.2f", expectedY, v.Y())
 	}
 }
@@ -58,7 +50,7 @@ func TestFromXY(t *testing.T) {
 func helpFromXY(t *testing.T, x float64, y float64, expectedDir float64) {
 	v := VectorFromXY(Coordinate{x, y})
 
-	if !withinEps(v.dir, expectedDir) {
+	if !WithinEps(v.dir, expectedDir) {
 		t.Errorf("Expected vector to have dir=%.2f, got dir=%.2f", expectedDir, v.dir)
 	}
 }
@@ -83,11 +75,11 @@ func helpRemoveX(t *testing.T, len float64, dir float64, expectedY float64) {
 	v := Vector{len: len, dir: dir}
 	v.RemoveX()
 
-	if !withinEps(v.X(), 0) {
+	if !WithinEps(v.X(), 0) {
 		t.Errorf("Expected vector to have x=%d, got x=%.2f", 0, v.X())
 	}
 
-	if !withinEps(v.Y(), expectedY) {
+	if !WithinEps(v.Y(), expectedY) {
 		t.Errorf("Expected vector to have y=%.2f, got y=%.2f", expectedY, v.Y())
 	}
 }
@@ -96,11 +88,11 @@ func helpRemoveY(t *testing.T, len float64, dir float64, expectedX float64) {
 	v := Vector{len: len, dir: dir}
 	v.RemoveY()
 
-	if !withinEps(v.Y(), 0) {
+	if !WithinEps(v.Y(), 0) {
 		t.Errorf("Expected vector to have y=%d, got y=%.2f", 0, v.Y())
 	}
 
-	if !withinEps(v.X(), expectedX) {
+	if !WithinEps(v.X(), expectedX) {
 		t.Errorf("Expected vector to have x=%.2f, got x=%.2f", expectedX, v.X())
 	}
 }
@@ -118,7 +110,7 @@ func helpBoundDirection(t *testing.T, len float64, dir float64, expectedDir floa
 	v := Vector{len: len, dir: dir}
 	v.BoundDirection()
 
-	if !withinEps(v.dir, expectedDir) {
+	if !WithinEps(v.dir, expectedDir) {
 		t.Errorf("Expected vector to have dir=%.2f, got dir=%.2f", expectedDir, v.dir)
 	}
 }
