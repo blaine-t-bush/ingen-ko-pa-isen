@@ -133,7 +133,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(g.farmer.sprite.image, &g.op)
 
 	// Title
+	w, _ := titleImage.Size()
 	g.op.GeoM.Reset()
+	g.op.GeoM.Translate(float64(screenWidth)/2-float64(w)/2, 0)
 	screen.DrawImage(titleImage, &g.op)
 }
 
