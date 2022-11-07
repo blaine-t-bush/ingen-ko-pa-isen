@@ -3,6 +3,7 @@ package main
 type Actor struct {
 	sprite   *Sprite
 	velocity *Vector
+	noise    *Noise
 }
 
 func (a *Actor) Shunt() {

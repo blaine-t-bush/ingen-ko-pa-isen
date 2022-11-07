@@ -8,9 +8,11 @@ import (
 )
 
 const (
-	CowSpeedMultiplier    = 2
-	FarmerDetectionRadius = 120
-	WallDetectionRadius   = 5
+	CowSpeedMultiplier             = 2
+	FarmerDetectionRadius          = 120
+	WallDetectionRadius            = 5
+	CowNoiseSize                   = 50
+	CowNoiseDirectionModifierScale = 0.8
 )
 
 func (g *Game) UpdateCows() {
@@ -31,7 +33,8 @@ func ChooseCowDirection(cow *Actor, farmer *Actor) float64 {
 
 	// Small chance to choose new direction.
 	if rand.Float64() >= 0.95 {
-		dir = cow.velocity.dir + (math.Pi/2)*(0.5-rand.Float64())
+		dirModifier := 0.5 - cow.noise.UpdateAndGetValue()
+		dir = cow.velocity.dir + dirModifier*CowNoiseDirectionModifierScale
 	}
 
 	// Moves away from walls.
@@ -75,11 +78,14 @@ func (g *Game) CreateRandomCow(img ebiten.Image) *Actor {
 		}
 	}
 
+	noise := GenerateNoise(CowNoiseSize, CowNoiseSize)
+
 	return &Actor{
 		sprite: potentialSprite,
 		velocity: &Vector{
 			dir: 2 * math.Pi * rand.Float64(),
 			len: 1,
 		},
+		noise: &noise,
 	}
 }
