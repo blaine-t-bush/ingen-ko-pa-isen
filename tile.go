@@ -17,8 +17,8 @@ type TileCoordinate struct {
 }
 
 type Tile struct {
-	image    *ebiten.Image
-	walkable bool
+	image      *ebiten.Image
+	collidable bool
 }
 
 func GenerateTiles() map[TileCoordinate]*Tile {
@@ -47,18 +47,22 @@ func GenerateTiles() map[TileCoordinate]*Tile {
 	tiles := map[TileCoordinate]*Tile{}
 	for _, coord := range tileCoordinates {
 		if rand.Float64() <= 0.04 {
-			tiles[coord] = &Tile{image: tileIceStreaksImage, walkable: true}
+			tiles[coord] = &Tile{image: tileIceStreaksImage, collidable: false}
 		} else {
-			tiles[coord] = &Tile{image: tileIceImage, walkable: true}
+			tiles[coord] = &Tile{image: tileIceImage, collidable: false}
 		}
 	}
 
-	tiles[TileCoordinate{tileCountX / 2, tileCountY / 2}] = &Tile{image: tileIceHoleTLImage, walkable: false}
-	tiles[TileCoordinate{tileCountX/2 + 1, tileCountY / 2}] = &Tile{image: tileIceHoleTRImage, walkable: false}
-	tiles[TileCoordinate{tileCountX / 2, tileCountY/2 + 1}] = &Tile{image: tileIceHoleBLImage, walkable: false}
-	tiles[TileCoordinate{tileCountX/2 + 1, tileCountY/2 + 1}] = &Tile{image: tileIceHoleBRImage, walkable: false}
+	tiles[TileCoordinate{tileCountX / 2, tileCountY / 2}] = &Tile{image: tileIceHoleTLImage, collidable: true}
+	tiles[TileCoordinate{tileCountX/2 + 1, tileCountY / 2}] = &Tile{image: tileIceHoleTRImage, collidable: true}
+	tiles[TileCoordinate{tileCountX / 2, tileCountY/2 + 1}] = &Tile{image: tileIceHoleBLImage, collidable: true}
+	tiles[TileCoordinate{tileCountX/2 + 1, tileCountY/2 + 1}] = &Tile{image: tileIceHoleBRImage, collidable: true}
 
 	return tiles
+}
+
+func (t Tile) ToBoundingBox(c TileCoordinate) BoundingBox {
+	return BoundingBox{pos: c.ToScreenCoordinate(), width: TileSize, height: TileSize}
 }
 
 func (c *ScreenCoordinate) TileCoordinateX() int {

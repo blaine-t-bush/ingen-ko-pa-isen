@@ -98,6 +98,14 @@ func (g *Game) CheckCollision(b BoundingBox) bool {
 		}
 	}
 
+	// loop over tiles
+	for coord, tile := range g.tiles {
+		// if object is collidable and rectangle is within boundaries
+		if tile.collidable && b.CollidesWithBox(tile.ToBoundingBox(coord)) {
+			collides = true
+		}
+	}
+
 	// TODO loop over actors?
 
 	return collides

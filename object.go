@@ -20,13 +20,25 @@ func (o *Object) BoundingBox() BoundingBox {
 
 func (g *Game) CreateRandomObject(img ebiten.Image, collidable bool) *Object {
 	w, h := img.Size()
-	object := &Object{
-		image:      &img,
-		pos:        &ScreenCoordinate{x: float64(rand.Intn(screenWidth - w)), y: float64(rand.Intn(screenHeight - h))},
-		width:      float64(w),
-		height:     float64(h),
-		collidable: collidable,
+	boundingBox := &BoundingBox{
+		pos:    ScreenCoordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))},
+		width:  float64(w),
+		height: float64(h),
 	}
 
-	return object
+	for {
+		if g.CheckCollision(*boundingBox) {
+			boundingBox.pos = ScreenCoordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))}
+		} else {
+			break
+		}
+	}
+
+	return &Object{
+		image:      &img,
+		pos:        &boundingBox.pos,
+		width:      boundingBox.width,
+		height:     boundingBox.height,
+		collidable: collidable,
+	}
 }

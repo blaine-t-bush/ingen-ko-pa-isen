@@ -102,7 +102,7 @@ func (g *Game) CreateRandomCow(img ebiten.Image) *Actor {
 	return &Actor{
 		image:  &img,
 		pos:    &boundingBox.pos,
-		width:  boundingBox.height,
+		width:  boundingBox.width,
 		height: boundingBox.height,
 		velocity: &Vector{
 			dir: noiseDir.GetValueScaled(2 * math.Pi),

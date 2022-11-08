@@ -26,7 +26,7 @@ func (a *Actor) Move(offset Vector) {
 
 func (a *Actor) Shunt() {
 	// moves actor to just inside borders if they are at or outside border
-	// TODO also check for overlap with collidable objects
+	// TODO also check for overlap with collidable objects and tiles
 
 	collidesTop, overlapTop := a.BoundingBox().CollidesWithTopBorder()
 	collidesBottom, overlapBottom := a.BoundingBox().CollidesWithBottomBorder()
