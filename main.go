@@ -28,7 +28,6 @@ var (
 	titleImage  *ebiten.Image
 	farmerImage *ebiten.Image
 	cowImage    *ebiten.Image
-	treeImage   *ebiten.Image
 )
 
 func init() {
@@ -38,7 +37,6 @@ func init() {
 	titleImage = PrepareImage("./assets/menu/title.png", op)
 	farmerImage = PrepareImage("./assets/sprites/farmer.png", op)
 	cowImage = PrepareImage("./assets/sprites/cow.png", op)
-	treeImage = PrepareImage("./assets/sprites/tree.png", op)
 }
 
 func (g *Game) init() {
@@ -49,10 +47,6 @@ func (g *Game) init() {
 	rand.Seed(time.Now().UnixNano())
 
 	g.tiles = GenerateTiles()
-
-	for i := 0; i < 1; i++ {
-		g.objects = append(g.objects, g.CreateRandomObject(*treeImage, true))
-	}
 
 	for i := 0; i < 5; i++ {
 		g.cows = append(g.cows, g.CreateRandomCow(*cowImage))
