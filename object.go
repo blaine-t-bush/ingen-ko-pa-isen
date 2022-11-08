@@ -42,3 +42,37 @@ func (g *Game) CreateRandomObject(img ebiten.Image, collidable bool) *Object {
 		collidable: collidable,
 	}
 }
+
+func (g *Game) CreateRandomTree(trunkImg *ebiten.Image, canopyImg *ebiten.Image) []*Object {
+	wTrunk, hTrunk := trunkImg.Size()
+	boundingBox := &BoundingBox{
+		pos:    ScreenCoordinate{float64(rand.Intn(screenWidth - wTrunk)), float64(rand.Intn(screenHeight - hTrunk))},
+		width:  float64(wTrunk),
+		height: float64(hTrunk),
+	}
+
+	for {
+		if g.CheckCollision(*boundingBox) {
+			boundingBox.pos = ScreenCoordinate{float64(rand.Intn(screenWidth - wTrunk)), float64(rand.Intn(screenHeight - hTrunk))}
+		} else {
+			break
+		}
+	}
+
+	trunk := &Object{
+		image:      trunkImg,
+		pos:        &boundingBox.pos,
+		width:      float64(wTrunk),
+		height:     float64(hTrunk),
+		collidable: true,
+	}
+
+	wCanopy, hCanopy := canopyImg.Size()
+
+	canopy := &Object{
+		image: canopyImg,
+		pos:   &ScreenCoordinate{trunk.pos.x - (float64(wCanopy)-trunk.width)/2, trunk.pos.y - float64(hCanopy)},
+	}
+
+	return []*Object{trunk, canopy}
+}
