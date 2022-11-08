@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 
@@ -45,14 +44,12 @@ func ChooseCowDirection(cow *Actor, farmer *Actor) float64 {
 	if cow.sprite.pos.x <= WallDetectionRadius {
 		dir = 0.0
 		cow.noiseDir.SelectCoordinateToMatch(dir / (2 * math.Pi))
-		fmt.Println(cow.noiseDir.GetValue())
 	} else if cow.sprite.pos.x+cow.sprite.imageWidth >= screenWidth-WallDetectionRadius {
 		dir = math.Pi
 		cow.noiseDir.SelectCoordinateToMatch(dir / (2 * math.Pi))
 	} else if cow.sprite.pos.y <= WallDetectionRadius {
 		dir = math.Pi / 2
 		cow.noiseDir.SelectCoordinateToMatch(dir / (2 * math.Pi))
-		fmt.Println(cow.noiseDir.GetValue())
 	} else if cow.sprite.pos.y+cow.sprite.imageHeight >= screenHeight-WallDetectionRadius {
 		dir = 3 * math.Pi / 2
 		cow.noiseDir.SelectCoordinateToMatch(dir / (2 * math.Pi))

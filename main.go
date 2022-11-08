@@ -25,6 +25,7 @@ const (
 )
 
 var (
+	backgroundImage *ebiten.Image
 	titleImage      *ebiten.Image
 	farmerImage     *ebiten.Image
 	cowImage        *ebiten.Image
@@ -39,6 +40,7 @@ func init() {
 	op.ColorM.Scale(1, 1, 1, 1)
 
 	titleImage = prepareImage("./assets/menu/title.png", op)
+	backgroundImage = prepareImage("./assets/sprites/background.png", op)
 	farmerImage = prepareImage("./assets/sprites/farmer.png", op)
 	cowImage = prepareImage("./assets/sprites/cow.png", op)
 	rockImage = prepareImage("./assets/sprites/rock.png", op)
@@ -110,6 +112,10 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	// Background: 89BAFF
 	screen.Fill(color.NRGBA{0x89, 0xba, 0xff, 0xff})
+
+	// Background
+	g.op.GeoM.Reset()
+	screen.DrawImage(backgroundImage, &g.op)
 
 	// Objects
 	for index := range g.objects {
