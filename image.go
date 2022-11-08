@@ -22,3 +22,12 @@ func NewImageFromFilePath(filePath string) *ebiten.Image {
 
 	return ebiten.NewImageFromImage(image)
 }
+
+func PrepareImage(filePath string, op *ebiten.DrawImageOptions) *ebiten.Image {
+	origImage := NewImageFromFilePath(filePath)
+	w, h := origImage.Size()
+	image := ebiten.NewImage(w, h)
+	image.DrawImage(origImage, op)
+
+	return image
+}

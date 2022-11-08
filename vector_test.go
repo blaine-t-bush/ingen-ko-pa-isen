@@ -48,7 +48,7 @@ func TestFromXY(t *testing.T) {
 }
 
 func helpFromXY(t *testing.T, x float64, y float64, expectedDir float64) {
-	v := VectorFromXY(Coordinate{x, y})
+	v := VectorFromXY(ScreenCoordinate{x, y})
 
 	if !WithinEps(v.dir, expectedDir) {
 		t.Errorf("Expected vector to have dir=%.2f, got dir=%.2f", expectedDir, v.dir)
@@ -57,16 +57,16 @@ func helpFromXY(t *testing.T, x float64, y float64, expectedDir float64) {
 
 func TestRemoveX(t *testing.T) {
 	helpRemoveX(t, 1, 0, 0)
-	helpRemoveX(t, 1, math.Pi, 0)
 	helpRemoveX(t, 1, math.Pi/2, 1)
-	helpRemoveX(t, 1, 3*math.Pi/2, 1)
+	helpRemoveX(t, 1, math.Pi, 0)
+	helpRemoveX(t, 1, 3*math.Pi/2, -1)
 	helpRemoveX(t, 1, 2*math.Pi, 0)
 }
 
 func TestRemoveY(t *testing.T) {
 	helpRemoveY(t, 1, 0, 1)
-	helpRemoveY(t, 1, math.Pi, 1)
 	helpRemoveY(t, 1, math.Pi/2, 0)
+	helpRemoveY(t, 1, math.Pi, -1)
 	helpRemoveY(t, 1, 3*math.Pi/2, 0)
 	helpRemoveY(t, 1, 2*math.Pi, 1)
 }

@@ -41,23 +41,23 @@ func ChooseCowDirection(cow *Actor, farmer *Actor) float64 {
 	}
 
 	// Moves away from walls.
-	if cow.sprite.pos.x <= WallDetectionRadius {
+	if cow.BoundingBox().Left() <= WallDetectionRadius {
 		dir = 0.0
 		cow.noiseDir.SelectCoordinateToMatch(dir / (2 * math.Pi))
-	} else if cow.sprite.pos.x+cow.sprite.imageWidth >= screenWidth-WallDetectionRadius {
+	} else if cow.BoundingBox().Right() >= screenWidth-WallDetectionRadius {
 		dir = math.Pi
 		cow.noiseDir.SelectCoordinateToMatch(dir / (2 * math.Pi))
-	} else if cow.sprite.pos.y <= WallDetectionRadius {
+	} else if cow.BoundingBox().Top() <= WallDetectionRadius {
 		dir = math.Pi / 2
 		cow.noiseDir.SelectCoordinateToMatch(dir / (2 * math.Pi))
-	} else if cow.sprite.pos.y+cow.sprite.imageHeight >= screenHeight-WallDetectionRadius {
+	} else if cow.BoundingBox().Bottom() >= screenHeight-WallDetectionRadius {
 		dir = 3 * math.Pi / 2
 		cow.noiseDir.SelectCoordinateToMatch(dir / (2 * math.Pi))
 	}
 
 	// Flees directly away from farmer.
-	if cow.sprite.pos.WithinRadius(farmer.sprite.Center(), FarmerDetectionRadius) {
-		dir = VectorFromPoints(farmer.sprite.Center(), cow.sprite.Center()).dir
+	if cow.BoundingBox().Center().WithinRadius(farmer.BoundingBox().Center(), FarmerDetectionRadius) {
+		dir = VectorFromPoints(farmer.BoundingBox().Center(), cow.BoundingBox().Center()).dir
 		cow.noiseDir.SelectCoordinateToMatch(dir / (2 * math.Pi))
 	}
 
@@ -82,21 +82,15 @@ func ChooseCowSpeed(cow *Actor) float64 {
 
 func (g *Game) CreateRandomCow(img ebiten.Image) *Actor {
 	w, h := img.Size()
-	potentialSprite := &Sprite{
-		image:       &img,
-		imageWidth:  float64(w),
-		imageHeight: float64(h),
-		pos:         &Coordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))},
+	boundingBox := &BoundingBox{
+		pos:    ScreenCoordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))},
+		width:  float64(w),
+		height: float64(h),
 	}
 
 	for {
-		if g.CheckCollision(potentialSprite) {
-			potentialSprite = &Sprite{
-				image:       &img,
-				imageWidth:  float64(w),
-				imageHeight: float64(h),
-				pos:         &Coordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))},
-			}
+		if g.CheckCollision(*boundingBox) {
+			boundingBox.pos = ScreenCoordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))}
 		} else {
 			break
 		}
@@ -106,7 +100,10 @@ func (g *Game) CreateRandomCow(img ebiten.Image) *Actor {
 	noiseDir := GenerateNoise(CowNoiseSize, CowNoiseSize)
 
 	return &Actor{
-		sprite: potentialSprite,
+		image:  &img,
+		pos:    &boundingBox.pos,
+		width:  boundingBox.width,
+		height: boundingBox.height,
 		velocity: &Vector{
 			dir: noiseDir.GetValueScaled(2 * math.Pi),
 			len: noiseSpeed.GetValueScaled(CowSpeedMultiplier),

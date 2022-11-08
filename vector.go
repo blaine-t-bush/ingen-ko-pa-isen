@@ -15,7 +15,7 @@ func (v *Vector) Y() float64 {
 	return v.len * math.Sin(v.dir)
 }
 
-func (v *Vector) SetXY(p Coordinate) {
+func (v *Vector) SetXY(p ScreenCoordinate) {
 	v.len = math.Sqrt(p.x*p.x + p.y*p.y)
 	if p.x == 0 && p.y == 0 {
 		v.dir = 0
@@ -58,8 +58,8 @@ func (v *Vector) BoundDirection() {
 }
 
 func (v *Vector) RemoveX() {
-	v.len = v.Y()
-	if math.Sin(v.dir) >= 0 {
+	v.len = math.Abs(v.Y())
+	if v.Y() >= 0 {
 		v.dir = math.Pi / 2
 	} else {
 		v.dir = 3 * math.Pi / 2
@@ -67,22 +67,22 @@ func (v *Vector) RemoveX() {
 }
 
 func (v *Vector) RemoveY() {
-	v.len = v.X()
-	if math.Cos(v.dir) >= 0 {
+	v.len = math.Abs(v.X())
+	if v.X() >= 0 {
 		v.dir = 0
 	} else {
 		v.dir = math.Pi
 	}
 }
 
-func VectorFromXY(p Coordinate) Vector {
+func VectorFromXY(p ScreenCoordinate) Vector {
 	v := Vector{}
 	v.SetXY(p)
 	return v
 }
 
-func VectorFromPoints(from Coordinate, to Coordinate) Vector {
+func VectorFromPoints(from ScreenCoordinate, to ScreenCoordinate) Vector {
 	x := to.x - from.x
 	y := to.y - from.y
-	return VectorFromXY(Coordinate{x, y})
+	return VectorFromXY(ScreenCoordinate{x, y})
 }

@@ -2,17 +2,22 @@ package main
 
 import "math"
 
-type Coordinate struct {
+type ScreenCoordinate struct {
 	x float64
 	y float64
 }
 
-func (p *Coordinate) DistanceFrom(from Coordinate) float64 {
-	dX := from.x - p.x
-	dY := from.y - p.y
+func (c *ScreenCoordinate) Translate(offset Vector) {
+	c.x += offset.X()
+	c.y += offset.Y()
+}
+
+func (c ScreenCoordinate) DistanceFrom(from ScreenCoordinate) float64 {
+	dX := from.x - c.x
+	dY := from.y - c.y
 	return math.Sqrt(dX*dX + dY*dY)
 }
 
-func (p *Coordinate) WithinRadius(center Coordinate, r float64) bool {
-	return p.DistanceFrom(center) <= r
+func (c ScreenCoordinate) WithinRadius(center ScreenCoordinate, r float64) bool {
+	return c.DistanceFrom(center) <= r
 }
