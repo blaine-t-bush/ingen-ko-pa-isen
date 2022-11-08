@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -16,7 +17,8 @@ type TileCoordinate struct {
 }
 
 type Tile struct {
-	image *ebiten.Image
+	image    *ebiten.Image
+	walkable bool
 }
 
 func GenerateTiles() map[TileCoordinate]*Tile {
@@ -45,16 +47,40 @@ func GenerateTiles() map[TileCoordinate]*Tile {
 	tiles := map[TileCoordinate]*Tile{}
 	for _, coord := range tileCoordinates {
 		if rand.Float64() <= 0.04 {
-			tiles[coord] = &Tile{image: tileIceStreaksImage}
+			tiles[coord] = &Tile{image: tileIceStreaksImage, walkable: true}
 		} else {
-			tiles[coord] = &Tile{image: tileIceImage}
+			tiles[coord] = &Tile{image: tileIceImage, walkable: true}
 		}
 	}
 
-	tiles[TileCoordinate{tileCountX / 2, tileCountY / 2}] = &Tile{image: tileIceHoleTLImage}
-	tiles[TileCoordinate{tileCountX/2 + 1, tileCountY / 2}] = &Tile{image: tileIceHoleTRImage}
-	tiles[TileCoordinate{tileCountX / 2, tileCountY/2 + 1}] = &Tile{image: tileIceHoleBLImage}
-	tiles[TileCoordinate{tileCountX/2 + 1, tileCountY/2 + 1}] = &Tile{image: tileIceHoleBRImage}
+	tiles[TileCoordinate{tileCountX / 2, tileCountY / 2}] = &Tile{image: tileIceHoleTLImage, walkable: false}
+	tiles[TileCoordinate{tileCountX/2 + 1, tileCountY / 2}] = &Tile{image: tileIceHoleTRImage, walkable: false}
+	tiles[TileCoordinate{tileCountX / 2, tileCountY/2 + 1}] = &Tile{image: tileIceHoleBLImage, walkable: false}
+	tiles[TileCoordinate{tileCountX/2 + 1, tileCountY/2 + 1}] = &Tile{image: tileIceHoleBRImage, walkable: false}
 
 	return tiles
+}
+
+func (c *ScreenCoordinate) TileCoordinateX() int {
+	return int(math.Mod(c.x, TileSize))
+}
+
+func (c *ScreenCoordinate) TileCoordinateY() int {
+	return int(math.Mod(c.y, TileSize))
+}
+
+func (c *ScreenCoordinate) ToTileCoordinate() TileCoordinate {
+	return TileCoordinate{x: c.TileCoordinateX(), y: c.TileCoordinateY()}
+}
+
+func (t *TileCoordinate) ScreenCoordinateX() float64 {
+	return float64(t.x * TileSize)
+}
+
+func (t *TileCoordinate) ScreenCoordinateY() float64 {
+	return float64(t.y * TileSize)
+}
+
+func (t *TileCoordinate) ToScreenCoordinate() ScreenCoordinate {
+	return ScreenCoordinate{x: t.ScreenCoordinateX(), y: t.ScreenCoordinateY()}
 }

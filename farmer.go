@@ -12,27 +12,24 @@ const (
 
 func (g *Game) CreateFarmer(img ebiten.Image) *Actor {
 	w, h := img.Size()
-	potentialSprite := &Sprite{
-		image:       &img,
-		imageWidth:  float64(w),
-		imageHeight: float64(h),
-		pos:         &Coordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))},
+	boundingBox := &BoundingBox{
+		pos:    ScreenCoordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))},
+		width:  float64(w),
+		height: float64(h),
 	}
 
 	for {
-		if g.CheckCollision(potentialSprite) {
-			potentialSprite = &Sprite{
-				image:       &img,
-				imageWidth:  float64(w),
-				imageHeight: float64(h),
-				pos:         &Coordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))},
-			}
+		if g.CheckCollision(*boundingBox) {
+			boundingBox.pos = ScreenCoordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))}
 		} else {
 			break
 		}
 	}
 
 	return &Actor{
-		sprite: potentialSprite,
+		image:  &img,
+		pos:    &boundingBox.pos,
+		width:  boundingBox.width,
+		height: boundingBox.height,
 	}
 }

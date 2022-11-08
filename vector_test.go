@@ -48,7 +48,7 @@ func TestFromXY(t *testing.T) {
 }
 
 func helpFromXY(t *testing.T, x float64, y float64, expectedDir float64) {
-	v := VectorFromXY(Coordinate{x, y})
+	v := VectorFromXY(ScreenCoordinate{x, y})
 
 	if !WithinEps(v.dir, expectedDir) {
 		t.Errorf("Expected vector to have dir=%.2f, got dir=%.2f", expectedDir, v.dir)

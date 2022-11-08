@@ -80,13 +80,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Tiles
 	for coord, tile := range g.tiles {
 		g.op.GeoM.Reset()
-		g.op.GeoM.Translate(float64(coord.x*TileSize), float64(coord.y*TileSize))
+		g.op.GeoM.Translate(coord.ScreenCoordinateX(), coord.ScreenCoordinateY())
 		screen.DrawImage(tile.image, &g.op)
 	}
 
 	// Objects
 	for index := range g.objects {
-		s := g.objects[index].sprite
+		s := g.objects[index]
 		g.op.GeoM.Reset()
 		g.op.GeoM.Translate(s.pos.x, s.pos.y)
 		screen.DrawImage(s.image, &g.op)
@@ -94,7 +94,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	// Cows
 	for index := range g.cows {
-		s := g.cows[index].sprite
+		s := g.cows[index]
 		g.op.GeoM.Reset()
 		g.op.GeoM.Translate(s.pos.x, s.pos.y)
 		screen.DrawImage(s.image, &g.op)
@@ -102,8 +102,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	// Farmer
 	g.op.GeoM.Reset()
-	g.op.GeoM.Translate(g.farmer.sprite.pos.x, g.farmer.sprite.pos.y)
-	screen.DrawImage(g.farmer.sprite.image, &g.op)
+	g.op.GeoM.Translate(g.farmer.pos.x, g.farmer.pos.y)
+	screen.DrawImage(g.farmer.image, &g.op)
 
 	// Title
 	w, _ := titleImage.Size()

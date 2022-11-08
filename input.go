@@ -20,9 +20,9 @@ func KeysIncludes(keys []ebiten.Key, includes ebiten.Key) bool {
 }
 
 func (g *Game) HandleMouseLeftClick() error {
-	farmerPos := g.farmer.sprite.Center()
+	farmerPos := g.farmer.BoundingBox().Center()
 	x, y := ebiten.CursorPosition()
-	mousePos := Coordinate{float64(x), float64(y)}
+	mousePos := ScreenCoordinate{float64(x), float64(y)}
 	if !mousePos.WithinRadius(farmerPos, 2) {
 		velocity := VectorFromPoints(farmerPos, mousePos)
 		velocity.Normalize()
@@ -42,21 +42,21 @@ func (g *Game) HandleKeyPresses(keys []ebiten.Key) error {
 	if pressedLeft || pressedRight || pressedUp || pressedDown {
 		var v Vector
 		if pressedLeft && pressedUp {
-			v = VectorFromXY(Coordinate{-1, -1})
+			v = VectorFromXY(ScreenCoordinate{-1, -1})
 		} else if pressedLeft && pressedDown {
-			v = VectorFromXY(Coordinate{-1, 1})
+			v = VectorFromXY(ScreenCoordinate{-1, 1})
 		} else if pressedLeft {
-			v = VectorFromXY(Coordinate{-1, 0})
+			v = VectorFromXY(ScreenCoordinate{-1, 0})
 		} else if pressedRight && pressedUp {
-			v = VectorFromXY(Coordinate{1, -1})
+			v = VectorFromXY(ScreenCoordinate{1, -1})
 		} else if pressedRight && pressedDown {
-			v = VectorFromXY(Coordinate{1, 1})
+			v = VectorFromXY(ScreenCoordinate{1, 1})
 		} else if pressedRight {
-			v = VectorFromXY(Coordinate{1, 0})
+			v = VectorFromXY(ScreenCoordinate{1, 0})
 		} else if pressedUp {
-			v = VectorFromXY(Coordinate{0, -1})
+			v = VectorFromXY(ScreenCoordinate{0, -1})
 		} else if pressedDown {
-			v = VectorFromXY(Coordinate{0, 1})
+			v = VectorFromXY(ScreenCoordinate{0, 1})
 		}
 
 		v.Normalize()
