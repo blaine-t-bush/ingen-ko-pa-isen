@@ -3,8 +3,6 @@ package main
 import (
 	"math"
 	"math/rand"
-
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
@@ -80,8 +78,8 @@ func ChooseCowSpeed(cow *Actor) float64 {
 	return speed
 }
 
-func (g *Game) CreateRandomCow(img ebiten.Image) *Actor {
-	w, h := img.Size()
+func (g *Game) CreateRandomCow() *Actor {
+	w, h := cowImage.Size()
 	boundingBox := &BoundingBox{
 		pos:    ScreenCoordinate{float64(rand.Intn(screenWidth - w)), float64(rand.Intn(screenHeight - h))},
 		width:  float64(w),
@@ -100,7 +98,7 @@ func (g *Game) CreateRandomCow(img ebiten.Image) *Actor {
 	noiseDir := GenerateNoise(CowNoiseSize, CowNoiseSize)
 
 	return &Actor{
-		image:  &img,
+		image:  cowImage,
 		pos:    &boundingBox.pos,
 		width:  boundingBox.width,
 		height: boundingBox.height,

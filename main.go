@@ -29,6 +29,7 @@ var (
 	titleImage      *ebiten.Image
 	farmerImage     *ebiten.Image
 	cowImage        *ebiten.Image
+	cowPieImage     *ebiten.Image
 	treeTrunkImage  *ebiten.Image
 	treeCanopyImage *ebiten.Image
 )
@@ -40,6 +41,7 @@ func init() {
 	titleImage = PrepareImage("./assets/menu/title.png", op)
 	farmerImage = PrepareImage("./assets/sprites/farmer.png", op)
 	cowImage = PrepareImage("./assets/sprites/cow.png", op)
+	cowPieImage = PrepareImage("./assets/sprites/cow_pie.png", op)
 	treeTrunkImage = PrepareImage("./assets/sprites/tree_trunk.png", op)
 	treeCanopyImage = PrepareImage("./assets/sprites/tree_canopy.png", op)
 }
@@ -54,11 +56,15 @@ func (g *Game) init() {
 	g.tiles = GenerateTiles()
 
 	for i := 0; i < 3; i++ {
-		g.objects = append(g.objects, g.CreateRandomTree(treeTrunkImage, treeCanopyImage)...)
+		g.objects = append(g.objects, g.CreateRandomTree()...)
+	}
+
+	for i := 0; i < 3; i++ {
+		g.objects = append(g.objects, g.CreateRandomCowPie())
 	}
 
 	for i := 0; i < 5; i++ {
-		g.cows = append(g.cows, g.CreateRandomCow(*cowImage))
+		g.cows = append(g.cows, g.CreateRandomCow())
 	}
 
 	g.farmer = g.CreateFarmer(*farmerImage)
@@ -95,6 +101,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		screen.DrawImage(tile.image, &g.op)
 	}
 
+	// Objects: below actors
+	for index := range g.objects {
+		s := g.objects[index]
+		if !s.aboveActors {
+			g.op.GeoM.Reset()
+			g.op.GeoM.Translate(s.pos.x, s.pos.y)
+			screen.DrawImage(s.image, &g.op)
+		}
+	}
+
 	// Cows
 	for index := range g.cows {
 		s := g.cows[index]
@@ -108,12 +124,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.op.GeoM.Translate(g.farmer.pos.x, g.farmer.pos.y)
 	screen.DrawImage(g.farmer.image, &g.op)
 
-	// Objects
+	// Objects: above actors
 	for index := range g.objects {
 		s := g.objects[index]
-		g.op.GeoM.Reset()
-		g.op.GeoM.Translate(s.pos.x, s.pos.y)
-		screen.DrawImage(s.image, &g.op)
+		if s.aboveActors {
+			g.op.GeoM.Reset()
+			g.op.GeoM.Translate(s.pos.x, s.pos.y)
+			screen.DrawImage(s.image, &g.op)
+		}
 	}
 
 	// Title
