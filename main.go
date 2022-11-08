@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	_ "image/png"
 	"log"
 	"math/rand"
@@ -17,6 +16,7 @@ type Game struct {
 	farmer  *Actor
 	cows    []*Actor
 	objects []*Object
+	tiles   map[TileCoordinate]*Tile
 }
 
 const (
@@ -25,37 +25,20 @@ const (
 )
 
 var (
-	backgroundImage *ebiten.Image
-	titleImage      *ebiten.Image
-	farmerImage     *ebiten.Image
-	cowImage        *ebiten.Image
-	rockImage       *ebiten.Image
-	treeImage       *ebiten.Image
-	iceHoleImage    *ebiten.Image
-	iceStreaksImage *ebiten.Image
+	titleImage  *ebiten.Image
+	farmerImage *ebiten.Image
+	cowImage    *ebiten.Image
+	treeImage   *ebiten.Image
 )
 
 func init() {
 	op := &ebiten.DrawImageOptions{}
 	op.ColorM.Scale(1, 1, 1, 1)
 
-	titleImage = prepareImage("./assets/menu/title.png", op)
-	backgroundImage = prepareImage("./assets/sprites/background.png", op)
-	farmerImage = prepareImage("./assets/sprites/farmer.png", op)
-	cowImage = prepareImage("./assets/sprites/cow.png", op)
-	rockImage = prepareImage("./assets/sprites/rock.png", op)
-	treeImage = prepareImage("./assets/sprites/tree.png", op)
-	iceHoleImage = prepareImage("./assets/sprites/ice_hole.png", op)
-	iceStreaksImage = prepareImage("./assets/sprites/ice_streaks.png", op)
-}
-
-func prepareImage(filePath string, op *ebiten.DrawImageOptions) *ebiten.Image {
-	origImage := NewImageFromFilePath(filePath)
-	w, h := origImage.Size()
-	image := ebiten.NewImage(w, h)
-	image.DrawImage(origImage, op)
-
-	return image
+	titleImage = PrepareImage("./assets/menu/title.png", op)
+	farmerImage = PrepareImage("./assets/sprites/farmer.png", op)
+	cowImage = PrepareImage("./assets/sprites/cow.png", op)
+	treeImage = PrepareImage("./assets/sprites/tree.png", op)
 }
 
 func (g *Game) init() {
@@ -65,20 +48,10 @@ func (g *Game) init() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	for i := 0; i < 1; i++ {
-		g.objects = append(g.objects, g.CreateRandomObject(*rockImage, true))
-	}
-
-	for i := 0; i < 3; i++ {
-		g.objects = append(g.objects, g.CreateRandomObject(*iceHoleImage, true))
-	}
+	g.tiles = GenerateTiles()
 
 	for i := 0; i < 1; i++ {
 		g.objects = append(g.objects, g.CreateRandomObject(*treeImage, true))
-	}
-
-	for i := 0; i < 10; i++ {
-		g.objects = append(g.objects, g.CreateRandomObject(*iceStreaksImage, false))
 	}
 
 	for i := 0; i < 5; i++ {
@@ -110,12 +83,12 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	// Background: 89BAFF
-	screen.Fill(color.NRGBA{0x89, 0xba, 0xff, 0xff})
-
-	// Background
-	g.op.GeoM.Reset()
-	screen.DrawImage(backgroundImage, &g.op)
+	// Tiles
+	for coord, tile := range g.tiles {
+		g.op.GeoM.Reset()
+		g.op.GeoM.Translate(float64(coord.x*TileSize), float64(coord.y*TileSize))
+		screen.DrawImage(tile.image, &g.op)
+	}
 
 	// Objects
 	for index := range g.objects {
