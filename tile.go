@@ -41,6 +41,10 @@ func GenerateTiles() map[TileCoordinate]*Tile {
 	tileIceHoleTRImage := PrepareImage("./assets/tiles/ice_hole_TR.png", op)
 	tileIceHoleBLImage := PrepareImage("./assets/tiles/ice_hole_BL.png", op)
 	tileIceHoleBRImage := PrepareImage("./assets/tiles/ice_hole_BR.png", op)
+	tileTreeTrunkTLImage := PrepareImage("./assets/tiles/tree_trunk_TL.png", op)
+	tileTreeTrunkTRImage := PrepareImage("./assets/tiles/tree_trunk_TR.png", op)
+	tileTreeTrunkBLImage := PrepareImage("./assets/tiles/tree_trunk_BL.png", op)
+	tileTreeTrunkBRImage := PrepareImage("./assets/tiles/tree_trunk_BR.png", op)
 
 	// Use slice of tile coordinates to create map of tile coordinates to tiles.
 	// Start with all ice, then add other things to spice it up.
@@ -53,12 +57,100 @@ func GenerateTiles() map[TileCoordinate]*Tile {
 		}
 	}
 
-	tiles[TileCoordinate{tileCountX / 2, tileCountY / 2}] = &Tile{image: tileIceHoleTLImage, collidable: true}
-	tiles[TileCoordinate{tileCountX/2 + 1, tileCountY / 2}] = &Tile{image: tileIceHoleTRImage, collidable: true}
-	tiles[TileCoordinate{tileCountX / 2, tileCountY/2 + 1}] = &Tile{image: tileIceHoleBLImage, collidable: true}
-	tiles[TileCoordinate{tileCountX/2 + 1, tileCountY/2 + 1}] = &Tile{image: tileIceHoleBRImage, collidable: true}
+	tileGroupIceHole := map[int]Tile{
+		0: {
+			image:      tileIceHoleTLImage,
+			collidable: true,
+		},
+		1: {
+			image:      tileIceHoleTRImage,
+			collidable: true,
+		},
+		2: {
+			image:      tileIceHoleBLImage,
+			collidable: true,
+		},
+		3: {
+			image:      tileIceHoleBRImage,
+			collidable: true,
+		},
+	}
+
+	tileGroupTreeTrunk := map[int]Tile{
+		0: {
+			image:      tileTreeTrunkTLImage,
+			collidable: true,
+		},
+		1: {
+			image:      tileTreeTrunkTRImage,
+			collidable: true,
+		},
+		2: {
+			image:      tileTreeTrunkBLImage,
+			collidable: true,
+		},
+		3: {
+			image:      tileTreeTrunkBRImage,
+			collidable: true,
+		},
+	}
+
+	for i := 0; i < 5; i++ {
+		tiles = AddTileGroup(tiles, RandomUnoccupiedTileCoordinate(tiles, 2, 4), 2, tileGroupIceHole)
+	}
+
+	tiles = AddTileGroup(tiles, RandomUnoccupiedTileCoordinate(tiles, 2, 4), 2, tileGroupTreeTrunk)
 
 	return tiles
+}
+
+func AddTileGroup(tiles map[TileCoordinate]*Tile, startPos TileCoordinate, width int, tileGroup map[int]Tile) map[TileCoordinate]*Tile {
+	// startPos: top left tile coordinate of tile group
+	// width: width of tile group in tiles
+	// images: slice of images for populating tile group, ordered from left to right, top to bottom
+	// collidable: true if all tiles in group are collidable, false if all tiles are not collidable
+	if len(tileGroup)%width != 0 {
+		panic("Tile group not rectangular")
+	}
+
+	for index, tile := range tileGroup {
+		dx := index % width
+		dy := (index - dx) / width
+		tiles[TileCoordinate{x: startPos.x + dx, y: startPos.y + dy}] = &Tile{image: tile.image, collidable: tile.collidable}
+	}
+
+	return tiles
+}
+
+func RandomTileCoordinate() TileCoordinate {
+	tileCountX := screenWidth / TileSize
+	tileCountY := screenHeight / TileSize
+
+	return TileCoordinate{x: rand.Intn(tileCountX), y: rand.Intn(tileCountY)}
+}
+
+func RandomUnoccupiedTileCoordinate(tiles map[TileCoordinate]*Tile, width int, count int) TileCoordinate {
+	tileCoord := RandomTileCoordinate()
+
+	for {
+		occupied := false
+		for i := 0; i < count; i++ {
+			dx := i % width
+			dy := (i - dx) / width
+			currentCoord := TileCoordinate{x: tileCoord.x + dx, y: tileCoord.y + dy}
+			if tiles[currentCoord].collidable {
+				occupied = true
+			}
+		}
+
+		if !occupied {
+			break
+		}
+
+		tileCoord = RandomTileCoordinate()
+	}
+
+	return tileCoord
 }
 
 func (t Tile) ToBoundingBox(c TileCoordinate) BoundingBox {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image/color"
 	_ "image/png"
 	"log"
 	"math/rand"
@@ -77,6 +78,8 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	screen.Fill(color.NRGBA{0xb5, 0xdd, 0xff, 0xff})
+
 	// Tiles
 	for coord, tile := range g.tiles {
 		g.op.GeoM.Reset()
