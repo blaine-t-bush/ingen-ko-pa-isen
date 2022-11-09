@@ -6,8 +6,16 @@ import (
 	"github.com/google/uuid"
 )
 
-func (g *Game) AddFootprint(a Actor) {
-	if int(*a.distanceMoved)%FootprintSpacing == 0 {
+func (a *Actor) UpdateDistanceSinceLastFootprint(distance float64, replace bool) {
+	if replace {
+		*a.distanceSinceLastFootprint = distance
+	} else {
+		*a.distanceSinceLastFootprint += distance
+	}
+}
+
+func (g *Game) AddFootprint(a Actor, v Vector) {
+	if *a.distanceSinceLastFootprint > FootprintSpacing {
 		w, h := footprintIceImage.Size()
 		g.footprints = append(g.footprints, &Object{
 			id:          uuid.NewString(),
@@ -20,13 +28,17 @@ func (g *Game) AddFootprint(a Actor) {
 			belongsTo:   a.id,
 			createdAt:   time.Now().UnixMilli(),
 		})
+
+		a.UpdateDistanceSinceLastFootprint(0, true)
+	} else {
+		a.UpdateDistanceSinceLastFootprint(v.len, false)
 	}
 }
 
 func (g *Game) UpdateFootprints() {
 	footprintsCopy := []*Object{}
 	for _, footprint := range g.footprints {
-		if time.Now().UnixMilli()-footprint.createdAt < FootprintLifetime*1000 {
+		if time.Now().UnixMilli()-footprint.createdAt < FootprintLifetimeMs*1000 {
 			footprintsCopy = append(footprintsCopy, footprint)
 		}
 	}

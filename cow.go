@@ -98,7 +98,7 @@ func (g *Game) CreateRandomCow() *Actor {
 
 	noiseSpeed := GenerateNoise(CowNoiseSize, CowNoiseSize)
 	noiseDir := GenerateNoise(CowNoiseSize, CowNoiseSize)
-	distanceMoved := 0.0
+	distanceSinceLastFootprint := 0.0
 
 	return &Actor{
 		id:     uuid.NewString(),
@@ -110,8 +110,8 @@ func (g *Game) CreateRandomCow() *Actor {
 			dir: noiseDir.GetValueScaled(2 * math.Pi),
 			len: noiseSpeed.GetValueScaled(CowSpeedMultiplier),
 		},
-		distanceMoved: &distanceMoved,
-		noiseSpeed:    &noiseSpeed,
-		noiseDir:      &noiseDir,
+		distanceSinceLastFootprint: &distanceSinceLastFootprint,
+		noiseSpeed:                 &noiseSpeed,
+		noiseDir:                   &noiseDir,
 	}
 }

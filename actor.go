@@ -7,20 +7,20 @@ import (
 )
 
 const (
-	FootprintSpacing  = 10
-	FootprintLifetime = 3 // in seconds
+	FootprintSpacing    = 10
+	FootprintLifetimeMs = 3 // in seconds
 )
 
 type Actor struct {
-	id            string
-	image         *ebiten.Image
-	pos           *ScreenCoordinate
-	width         float64
-	height        float64
-	distanceMoved *float64
-	velocity      *Vector
-	noiseSpeed    *Noise
-	noiseDir      *Noise
+	id                         string
+	image                      *ebiten.Image
+	pos                        *ScreenCoordinate
+	width                      float64
+	height                     float64
+	distanceSinceLastFootprint *float64
+	velocity                   *Vector
+	noiseSpeed                 *Noise
+	noiseDir                   *Noise
 }
 
 func (a Actor) BoundingBox() BoundingBox {
@@ -29,11 +29,6 @@ func (a Actor) BoundingBox() BoundingBox {
 
 func (a *Actor) Move(offset Vector) {
 	a.pos.Translate(offset)
-	a.UpdateDistanceMoved(offset.len)
-}
-
-func (a *Actor) UpdateDistanceMoved(delta float64) {
-	*a.distanceMoved += delta
 }
 
 func (a *Actor) Shunt() {
@@ -61,7 +56,7 @@ func (a *Actor) Shunt() {
 func (g *Game) MoveActor(a Actor, v Vector, speedMultiplier float64) {
 	v = g.CheckMovementActor(a, v)
 	a.Move(v)
-	g.AddFootprint(a)
+	g.AddFootprint(a, v)
 }
 
 func (g *Game) CheckMovementActor(a Actor, v Vector) Vector {
