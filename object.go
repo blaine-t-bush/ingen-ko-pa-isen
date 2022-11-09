@@ -3,10 +3,12 @@ package main
 import (
 	"math/rand"
 
+	"github.com/google/uuid"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Object struct {
+	id          string
 	image       *ebiten.Image
 	pos         *ScreenCoordinate
 	width       float64
@@ -36,6 +38,7 @@ func (g *Game) CreateRandomObject(img *ebiten.Image, collidable bool, aboveActor
 	}
 
 	return &Object{
+		id:          uuid.NewString(),
 		image:       img,
 		pos:         &boundingBox.pos,
 		width:       boundingBox.width,
@@ -46,33 +49,12 @@ func (g *Game) CreateRandomObject(img *ebiten.Image, collidable bool, aboveActor
 }
 
 func (g *Game) CreateRandomTree() []*Object {
-	wTrunk, hTrunk := treeTrunkImage.Size()
-	boundingBox := &BoundingBox{
-		pos:    ScreenCoordinate{float64(rand.Intn(screenWidth - wTrunk)), float64(rand.Intn(screenHeight - hTrunk))},
-		width:  float64(wTrunk),
-		height: float64(hTrunk),
-	}
-
-	for {
-		if g.CheckCollision(*boundingBox) {
-			boundingBox.pos = ScreenCoordinate{float64(rand.Intn(screenWidth - wTrunk)), float64(rand.Intn(screenHeight - hTrunk))}
-		} else {
-			break
-		}
-	}
-
-	trunk := &Object{
-		image:       treeTrunkImage,
-		pos:         &boundingBox.pos,
-		width:       float64(wTrunk),
-		height:      float64(hTrunk),
-		collidable:  true,
-		aboveActors: false,
-	}
+	trunk := g.CreateRandomObject(treeTrunkImage, true, false)
 
 	wCanopy, hCanopy := treeCanopyImage.Size()
 
 	canopy := &Object{
+		id:          uuid.NewString(),
 		image:       treeCanopyImage,
 		pos:         &ScreenCoordinate{trunk.pos.x - (float64(wCanopy)-trunk.width)/2, trunk.pos.y - float64(hCanopy)},
 		width:       float64(wCanopy),

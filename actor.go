@@ -7,6 +7,7 @@ import (
 )
 
 type Actor struct {
+	id         string
 	image      *ebiten.Image
 	pos        *ScreenCoordinate
 	width      float64

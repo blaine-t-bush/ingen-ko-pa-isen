@@ -3,6 +3,7 @@ module github.com/blaine-t-bush/ingen-ko-pa-isen
 go 1.18
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/hajimehoshi/ebiten/v2 v2.4.10
 	github.com/ojrac/opensimplex-go v1.0.2
 )

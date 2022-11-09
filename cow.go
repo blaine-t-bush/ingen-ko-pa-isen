@@ -3,6 +3,8 @@ package main
 import (
 	"math"
 	"math/rand"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -98,6 +100,7 @@ func (g *Game) CreateRandomCow() *Actor {
 	noiseDir := GenerateNoise(CowNoiseSize, CowNoiseSize)
 
 	return &Actor{
+		id:     uuid.NewString(),
 		image:  cowImage,
 		pos:    &boundingBox.pos,
 		width:  boundingBox.width,
