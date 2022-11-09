@@ -9,7 +9,9 @@ import (
 
 const (
 	TileSize       = 20
-	SnowBorderSize = 2
+	SnowBorderSize = 5
+	TerrainTypeIce = iota
+	TerrainTypeSnow
 )
 
 type TileCoordinate struct {
@@ -18,8 +20,9 @@ type TileCoordinate struct {
 }
 
 type Tile struct {
-	image      *ebiten.Image
-	collidable bool
+	image       *ebiten.Image
+	collidable  bool
+	terrainType int
 }
 
 func GenerateTiles() map[TileCoordinate]*Tile {
@@ -70,30 +73,30 @@ func GenerateTiles() map[TileCoordinate]*Tile {
 		screenCoordY := coord.ToScreenCoordinate().y
 		if screenCoordX < snowBorderLeft || screenCoordX > snowBorderRight || screenCoordY < snowBorderTop || screenCoordY > snowBorderBottom {
 			if rand.Float64() <= 0.2 {
-				tiles[coord] = &Tile{image: tileSnowSpeckledImage, collidable: false}
+				tiles[coord] = &Tile{image: tileSnowSpeckledImage, collidable: false, terrainType: TerrainTypeSnow}
 			} else {
-				tiles[coord] = &Tile{image: tileSnowImage, collidable: false}
+				tiles[coord] = &Tile{image: tileSnowImage, collidable: false, terrainType: TerrainTypeSnow}
 			}
 		} else if screenCoordX == snowBorderLeft && screenCoordY == snowBorderTop {
-			tiles[coord] = &Tile{image: tileSnowToIceTLImage, collidable: false}
+			tiles[coord] = &Tile{image: tileSnowToIceTLImage, collidable: false, terrainType: TerrainTypeSnow}
 		} else if screenCoordX == snowBorderRight && screenCoordY == snowBorderTop {
-			tiles[coord] = &Tile{image: tileSnowToIceTRImage, collidable: false}
+			tiles[coord] = &Tile{image: tileSnowToIceTRImage, collidable: false, terrainType: TerrainTypeSnow}
 		} else if screenCoordX == snowBorderLeft && screenCoordY == snowBorderBottom {
-			tiles[coord] = &Tile{image: tileSnowToIceBLImage, collidable: false}
+			tiles[coord] = &Tile{image: tileSnowToIceBLImage, collidable: false, terrainType: TerrainTypeSnow}
 		} else if screenCoordX == snowBorderRight && screenCoordY == snowBorderBottom {
-			tiles[coord] = &Tile{image: tileSnowToIceBRImage, collidable: false}
+			tiles[coord] = &Tile{image: tileSnowToIceBRImage, collidable: false, terrainType: TerrainTypeSnow}
 		} else if screenCoordX == snowBorderLeft {
-			tiles[coord] = &Tile{image: tileSnowToIceLImage, collidable: false}
+			tiles[coord] = &Tile{image: tileSnowToIceLImage, collidable: false, terrainType: TerrainTypeSnow}
 		} else if screenCoordX == snowBorderRight {
-			tiles[coord] = &Tile{image: tileSnowToIceRImage, collidable: false}
+			tiles[coord] = &Tile{image: tileSnowToIceRImage, collidable: false, terrainType: TerrainTypeSnow}
 		} else if screenCoordY == snowBorderTop {
-			tiles[coord] = &Tile{image: tileSnowToIceTImage, collidable: false}
+			tiles[coord] = &Tile{image: tileSnowToIceTImage, collidable: false, terrainType: TerrainTypeSnow}
 		} else if screenCoordY == snowBorderBottom {
-			tiles[coord] = &Tile{image: tileSnowToIceBImage, collidable: false}
+			tiles[coord] = &Tile{image: tileSnowToIceBImage, collidable: false, terrainType: TerrainTypeSnow}
 		} else if rand.Float64() <= 0.04 {
-			tiles[coord] = &Tile{image: tileIceStreaksImage, collidable: false}
+			tiles[coord] = &Tile{image: tileIceStreaksImage, collidable: false, terrainType: TerrainTypeIce}
 		} else {
-			tiles[coord] = &Tile{image: tileIceImage, collidable: false}
+			tiles[coord] = &Tile{image: tileIceImage, collidable: false, terrainType: TerrainTypeIce}
 		}
 	}
 

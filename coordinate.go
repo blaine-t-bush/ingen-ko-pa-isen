@@ -29,33 +29,55 @@ func RandomCoordinate(w, h int) ScreenCoordinate {
 	return ScreenCoordinate{x: float64(rand.Intn(screenWidth - w)), y: float64(rand.Intn(screenHeight - h))}
 }
 
-func RandomSnowCoordinate(w, h int) ScreenCoordinate {
-	var minX, minY, maxX, maxY int
+func (g *Game) RandomCoordinateOfTerrainType(terrainType int) ScreenCoordinate {
+	tileCoordinates := []TileCoordinate{}
 
-	if rand.Intn(2) == 0 {
-		minX = 0
-		maxX = SnowBorderSize * TileSize
-	} else {
-		minX = screenWidth - (SnowBorderSize * TileSize) - w
-		maxX = screenWidth - w
+	for coord, tile := range g.tiles {
+		if tile.terrainType == terrainType {
+			tileCoordinates = append(tileCoordinates, coord)
+		}
 	}
 
-	if rand.Intn(2) == 0 {
-		minY = 0
-		maxY = SnowBorderSize * TileSize
-	} else {
-		minY = screenHeight - (SnowBorderSize * TileSize) - h
-		maxY = screenHeight - h
-	}
+	tileCoordinate := tileCoordinates[rand.Intn(len(tileCoordinates)-1)]
+	x := tileCoordinate.ToScreenCoordinate().x + float64(rand.Intn(TileSize))
+	y := tileCoordinate.ToScreenCoordinate().y + float64(rand.Intn(TileSize))
 
-	return ScreenCoordinate{x: float64(minX + rand.Intn(maxX-minX)), y: float64(minY + rand.Intn(maxY-minY))}
+	return ScreenCoordinate{x: x, y: y}
 }
 
-func RandomIceCoordinate(w, h int) ScreenCoordinate {
-	minX := SnowBorderSize * TileSize
-	minY := SnowBorderSize * TileSize
-	maxX := screenWidth - (SnowBorderSize * TileSize) - w
-	maxY := screenHeight - (SnowBorderSize * TileSize) - h
+func (g *Game) RandomCoordinateOfTerrainTypeWithArea(terrainType int, w float64, h float64) ScreenCoordinate {
+	tileCoordinates := []TileCoordinate{}
 
-	return ScreenCoordinate{x: float64(minX + rand.Intn(maxX-minX)), y: float64(minY + rand.Intn(maxY-minY))}
+	for coord, tile := range g.tiles {
+		if tile.terrainType == terrainType {
+			tileCoordinates = append(tileCoordinates, coord)
+		}
+	}
+
+	tileCoordinate := tileCoordinates[rand.Intn(len(tileCoordinates)-1)]
+	screenCoordinate := tileCoordinate.ToScreenCoordinate()
+	x := screenCoordinate.x + float64(rand.Intn(TileSize))
+	y := screenCoordinate.y + float64(rand.Intn(TileSize))
+
+	for {
+		if !g.CoordinateIsOnTerrainType(ScreenCoordinate{x: x + w, y: y + h}, terrainType) {
+			tileCoordinate = tileCoordinates[rand.Intn(len(tileCoordinates)-1)]
+			screenCoordinate = tileCoordinate.ToScreenCoordinate()
+			x = screenCoordinate.x + float64(rand.Intn(TileSize))
+			y = screenCoordinate.y + float64(rand.Intn(TileSize))
+		} else {
+			break
+		}
+	}
+
+	return ScreenCoordinate{x: x, y: y}
+}
+
+func (g *Game) CoordinateIsOnTerrainType(c ScreenCoordinate, terrainType int) bool {
+	tileCoordinate := c.ToTileCoordinate()
+	if tile, exists := g.tiles[tileCoordinate]; exists {
+		return tile.terrainType == terrainType
+	} else {
+		return false
+	}
 }
