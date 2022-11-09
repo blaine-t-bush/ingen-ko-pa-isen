@@ -44,11 +44,48 @@ func GenerateTiles() map[TileCoordinate]*Tile {
 	tileIceHoleTImage := PrepareImage("./assets/tiles/ice_hole_T.png", op)
 	tileIceHoleBImage := PrepareImage("./assets/tiles/ice_hole_B.png", op)
 
+	tileSnowToIceTImage := PrepareImage("./assets/tiles/snow_to_ice_T.png", op)
+	tileSnowToIceBImage := PrepareImage("./assets/tiles/snow_to_ice_B.png", op)
+	tileSnowToIceRImage := PrepareImage("./assets/tiles/snow_to_ice_R.png", op)
+	tileSnowToIceLImage := PrepareImage("./assets/tiles/snow_to_ice_L.png", op)
+
+	tileSnowToIceTRImage := PrepareImage("./assets/tiles/snow_to_ice_TR.png", op)
+	tileSnowToIceBRImage := PrepareImage("./assets/tiles/snow_to_ice_BR.png", op)
+	tileSnowToIceTLImage := PrepareImage("./assets/tiles/snow_to_ice_TL.png", op)
+	tileSnowToIceBLImage := PrepareImage("./assets/tiles/snow_to_ice_BL.png", op)
+
+	tileSnowImage := PrepareImage("./assets/tiles/snow.png", op)
+	tileSnowSpeckledImage := PrepareImage("./assets/tiles/snow_speckled.png", op)
+
 	// Use slice of tile coordinates to create map of tile coordinates to tiles.
 	// Start with all ice, then add other things to spice it up.
 	tiles := map[TileCoordinate]*Tile{}
 	for _, coord := range tileCoordinates {
-		if rand.Float64() <= 0.04 {
+		screenCoordX := coord.ToScreenCoordinate().x
+		screenCoordY := coord.ToScreenCoordinate().y
+		if screenCoordX == 0 || screenCoordX == screenWidth-TileSize || screenCoordY == 0 || screenCoordY == screenHeight-TileSize {
+			if rand.Float64() <= 0.2 {
+				tiles[coord] = &Tile{image: tileSnowSpeckledImage, collidable: false}
+			} else {
+				tiles[coord] = &Tile{image: tileSnowImage, collidable: false}
+			}
+		} else if screenCoordX == TileSize && screenCoordY == TileSize {
+			tiles[coord] = &Tile{image: tileSnowToIceTLImage, collidable: false}
+		} else if screenCoordX == screenWidth-2*TileSize && screenCoordY == TileSize {
+			tiles[coord] = &Tile{image: tileSnowToIceTRImage, collidable: false}
+		} else if screenCoordX == TileSize && screenCoordY == screenHeight-2*TileSize {
+			tiles[coord] = &Tile{image: tileSnowToIceBLImage, collidable: false}
+		} else if screenCoordX == screenWidth-2*TileSize && screenCoordY == screenHeight-2*TileSize {
+			tiles[coord] = &Tile{image: tileSnowToIceBRImage, collidable: false}
+		} else if screenCoordX == TileSize {
+			tiles[coord] = &Tile{image: tileSnowToIceLImage, collidable: false}
+		} else if screenCoordX == screenWidth-2*TileSize {
+			tiles[coord] = &Tile{image: tileSnowToIceRImage, collidable: false}
+		} else if screenCoordY == TileSize {
+			tiles[coord] = &Tile{image: tileSnowToIceTImage, collidable: false}
+		} else if screenCoordY == screenHeight-2*TileSize {
+			tiles[coord] = &Tile{image: tileSnowToIceBImage, collidable: false}
+		} else if rand.Float64() <= 0.04 {
 			tiles[coord] = &Tile{image: tileIceStreaksImage, collidable: false}
 		} else {
 			tiles[coord] = &Tile{image: tileIceImage, collidable: false}
