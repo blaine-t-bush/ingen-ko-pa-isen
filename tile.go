@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	TileSize = 20
+	TileSize       = 20
+	SnowBorderSize = 2
 )
 
 type TileCoordinate struct {
@@ -60,30 +61,34 @@ func GenerateTiles() map[TileCoordinate]*Tile {
 	// Use slice of tile coordinates to create map of tile coordinates to tiles.
 	// Start with all ice, then add other things to spice it up.
 	tiles := map[TileCoordinate]*Tile{}
+	snowBorderLeft := float64(SnowBorderSize * TileSize)
+	snowBorderRight := float64(screenWidth - TileSize*(SnowBorderSize+1))
+	snowBorderTop := float64(SnowBorderSize * TileSize)
+	snowBorderBottom := float64(screenHeight - TileSize*(SnowBorderSize+1))
 	for _, coord := range tileCoordinates {
 		screenCoordX := coord.ToScreenCoordinate().x
 		screenCoordY := coord.ToScreenCoordinate().y
-		if screenCoordX == 0 || screenCoordX == screenWidth-TileSize || screenCoordY == 0 || screenCoordY == screenHeight-TileSize {
+		if screenCoordX < snowBorderLeft || screenCoordX > snowBorderRight || screenCoordY < snowBorderTop || screenCoordY > snowBorderBottom {
 			if rand.Float64() <= 0.2 {
 				tiles[coord] = &Tile{image: tileSnowSpeckledImage, collidable: false}
 			} else {
 				tiles[coord] = &Tile{image: tileSnowImage, collidable: false}
 			}
-		} else if screenCoordX == TileSize && screenCoordY == TileSize {
+		} else if screenCoordX == snowBorderLeft && screenCoordY == snowBorderTop {
 			tiles[coord] = &Tile{image: tileSnowToIceTLImage, collidable: false}
-		} else if screenCoordX == screenWidth-2*TileSize && screenCoordY == TileSize {
+		} else if screenCoordX == snowBorderRight && screenCoordY == snowBorderTop {
 			tiles[coord] = &Tile{image: tileSnowToIceTRImage, collidable: false}
-		} else if screenCoordX == TileSize && screenCoordY == screenHeight-2*TileSize {
+		} else if screenCoordX == snowBorderLeft && screenCoordY == snowBorderBottom {
 			tiles[coord] = &Tile{image: tileSnowToIceBLImage, collidable: false}
-		} else if screenCoordX == screenWidth-2*TileSize && screenCoordY == screenHeight-2*TileSize {
+		} else if screenCoordX == snowBorderRight && screenCoordY == snowBorderBottom {
 			tiles[coord] = &Tile{image: tileSnowToIceBRImage, collidable: false}
-		} else if screenCoordX == TileSize {
+		} else if screenCoordX == snowBorderLeft {
 			tiles[coord] = &Tile{image: tileSnowToIceLImage, collidable: false}
-		} else if screenCoordX == screenWidth-2*TileSize {
+		} else if screenCoordX == snowBorderRight {
 			tiles[coord] = &Tile{image: tileSnowToIceRImage, collidable: false}
-		} else if screenCoordY == TileSize {
+		} else if screenCoordY == snowBorderTop {
 			tiles[coord] = &Tile{image: tileSnowToIceTImage, collidable: false}
-		} else if screenCoordY == screenHeight-2*TileSize {
+		} else if screenCoordY == snowBorderBottom {
 			tiles[coord] = &Tile{image: tileSnowToIceBImage, collidable: false}
 		} else if rand.Float64() <= 0.04 {
 			tiles[coord] = &Tile{image: tileIceStreaksImage, collidable: false}
@@ -139,10 +144,10 @@ func GenerateTiles() map[TileCoordinate]*Tile {
 	}
 
 	for i := 0; i < 5; i++ {
-		tiles = AddTileGroup(tiles, RandomUnoccupiedTileCoordinate(tiles, 2, 4), 2, tileGroupIceHole)
+		tiles = AddTileGroup(tiles, RandomUnoccupiedIceTileCoordinate(tiles, 2, 4), 2, tileGroupIceHole)
 	}
 
-	tiles = AddTileGroup(tiles, RandomUnoccupiedTileCoordinate(tiles, 3, 6), 3, tileGroupIceHoleWide)
+	tiles = AddTileGroup(tiles, RandomUnoccupiedIceTileCoordinate(tiles, 3, 6), 3, tileGroupIceHoleWide)
 
 	return tiles
 }
@@ -199,6 +204,82 @@ func RandomUnoccupiedTileCoordinate(tiles map[TileCoordinate]*Tile, width int, c
 	}
 
 	return tileCoord
+}
+
+func RandomUnoccupiedSnowTileCoordinate(tiles map[TileCoordinate]*Tile, width int, count int) TileCoordinate {
+	tileCoord := RandomSnowTileCoordinate()
+
+	for {
+		occupied := false
+		for i := 0; i < count; i++ {
+			dx := i % width
+			dy := (i - dx) / width
+			currentCoord := TileCoordinate{x: tileCoord.x + dx, y: tileCoord.y + dy}
+			if tile, ok := tiles[currentCoord]; ok && tile.collidable {
+				occupied = true
+			}
+		}
+
+		if !occupied {
+			break
+		}
+
+		tileCoord = RandomSnowTileCoordinate()
+	}
+
+	return tileCoord
+}
+
+func RandomUnoccupiedIceTileCoordinate(tiles map[TileCoordinate]*Tile, width int, count int) TileCoordinate {
+	tileCoord := RandomIceTileCoordinate()
+
+	for {
+		occupied := false
+		for i := 0; i < count; i++ {
+			dx := i % width
+			dy := (i - dx) / width
+			currentCoord := TileCoordinate{x: tileCoord.x + dx, y: tileCoord.y + dy}
+			if tile, ok := tiles[currentCoord]; ok && tile.collidable {
+				occupied = true
+			}
+		}
+
+		if !occupied {
+			break
+		}
+
+		tileCoord = RandomIceTileCoordinate()
+	}
+
+	return tileCoord
+}
+
+func RandomSnowTileCoordinate() TileCoordinate {
+	var x, y int
+	tileCountX := screenWidth / TileSize
+	tileCountY := screenHeight / TileSize
+
+	if rand.Intn(2) == 0 {
+		x = rand.Intn(SnowBorderSize)
+	} else {
+		x = tileCountX - SnowBorderSize + rand.Intn(SnowBorderSize)
+	}
+
+	if rand.Intn(2) == 0 {
+		y = rand.Intn(SnowBorderSize)
+	} else {
+		y = tileCountY - SnowBorderSize + rand.Intn(SnowBorderSize)
+	}
+
+	return TileCoordinate{x, y}
+
+}
+
+func RandomIceTileCoordinate() TileCoordinate {
+	tileCountX := screenWidth / TileSize
+	tileCountY := screenHeight / TileSize
+
+	return TileCoordinate{x: SnowBorderSize + rand.Intn(tileCountX-2*SnowBorderSize), y: SnowBorderSize + rand.Intn(tileCountY-2*SnowBorderSize)}
 }
 
 func (t Tile) ToBoundingBox(c TileCoordinate) BoundingBox {

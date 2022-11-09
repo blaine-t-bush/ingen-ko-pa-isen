@@ -51,7 +51,30 @@ func (g *Game) CreateRandomObject(img *ebiten.Image, collidable bool, aboveActor
 }
 
 func (g *Game) CreateRandomTree() []*Object {
-	trunk := g.CreateRandomObject(treeTrunkImage, true, false)
+	w, h := treeTrunkImage.Size()
+	boundingBox := &BoundingBox{
+		pos:    RandomSnowCoordinate(w, h),
+		width:  float64(w),
+		height: float64(h),
+	}
+
+	for {
+		if g.CheckCollision(*boundingBox) {
+			boundingBox.pos = RandomSnowCoordinate(w, h)
+		} else {
+			break
+		}
+	}
+
+	trunk := &Object{
+		id:          uuid.NewString(),
+		image:       treeTrunkImage,
+		pos:         &boundingBox.pos,
+		width:       boundingBox.width,
+		height:      boundingBox.height,
+		collidable:  true,
+		aboveActors: false,
+	}
 
 	wCanopy, hCanopy := treeCanopyImage.Size()
 
