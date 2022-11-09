@@ -69,3 +69,17 @@ func (g *Game) CreateRandomTree() []*Object {
 func (g *Game) CreateRandomCowPie() *Object {
 	return g.CreateRandomObject(cowPieImage, false, false)
 }
+
+func (g *Game) CreateFootprint(a Actor) *Object {
+	w, h := footprintIceImage.Size()
+
+	return &Object{
+		id:          uuid.NewString(),
+		image:       footprintIceImage,
+		pos:         &ScreenCoordinate{a.BoundingBox().CenterX(), a.BoundingBox().Bottom()},
+		width:       float64(w),
+		height:      float64(h),
+		collidable:  false,
+		aboveActors: false,
+	}
+}

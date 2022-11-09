@@ -26,12 +26,13 @@ const (
 )
 
 var (
-	titleImage      *ebiten.Image
-	farmerImage     *ebiten.Image
-	cowImage        *ebiten.Image
-	cowPieImage     *ebiten.Image
-	treeTrunkImage  *ebiten.Image
-	treeCanopyImage *ebiten.Image
+	titleImage        *ebiten.Image
+	farmerImage       *ebiten.Image
+	cowImage          *ebiten.Image
+	cowPieImage       *ebiten.Image
+	treeTrunkImage    *ebiten.Image
+	treeCanopyImage   *ebiten.Image
+	footprintIceImage *ebiten.Image
 )
 
 func init() {
@@ -44,6 +45,7 @@ func init() {
 	cowPieImage = PrepareImage("./assets/sprites/cow_pie.png", op)
 	treeTrunkImage = PrepareImage("./assets/sprites/tree_trunk.png", op)
 	treeCanopyImage = PrepareImage("./assets/sprites/tree_canopy.png", op)
+	footprintIceImage = PrepareImage("./assets/sprites/footprint_ice.png", op)
 }
 
 func (g *Game) init() {

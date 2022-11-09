@@ -26,10 +26,13 @@ func (g *Game) CreateFarmer(img ebiten.Image) *Actor {
 		}
 	}
 
+	distanceMoved := 0.0
+
 	return &Actor{
-		image:  &img,
-		pos:    &boundingBox.pos,
-		width:  boundingBox.width,
-		height: boundingBox.height,
+		image:         &img,
+		pos:           &boundingBox.pos,
+		width:         boundingBox.width,
+		height:        boundingBox.height,
+		distanceMoved: &distanceMoved,
 	}
 }

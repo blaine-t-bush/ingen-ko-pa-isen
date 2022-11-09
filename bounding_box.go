@@ -22,6 +22,14 @@ func (b BoundingBox) Right() float64 {
 	return b.pos.x + b.width
 }
 
+func (b BoundingBox) CenterX() float64 {
+	return b.pos.x + b.width/2
+}
+
+func (b BoundingBox) CenterY() float64 {
+	return b.pos.y + b.height/2
+}
+
 func (b BoundingBox) TopLeft() ScreenCoordinate {
 	return b.pos
 }
@@ -39,7 +47,7 @@ func (b BoundingBox) BottomRight() ScreenCoordinate {
 }
 
 func (b BoundingBox) Center() ScreenCoordinate {
-	return ScreenCoordinate{x: b.Left() + b.width/2, y: b.Top() + b.height/2}
+	return ScreenCoordinate{x: b.CenterX(), y: b.CenterY()}
 }
 
 func (b BoundingBox) CollidesWithTopBorder() (bool, float64) {
