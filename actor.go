@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	FootprintSpacing = 10
+	FootprintSpacing  = 10
+	FootprintLifetime = 3 // in seconds
 )
 
 type Actor struct {
@@ -60,11 +61,7 @@ func (a *Actor) Shunt() {
 func (g *Game) MoveActor(a Actor, v Vector, speedMultiplier float64) {
 	v = g.CheckMovementActor(a, v)
 	a.Move(v)
-
-	// Possibly add footprints.
-	if int(*a.distanceMoved)%FootprintSpacing == 0 {
-		g.objects = append(g.objects, g.CreateFootprint(a))
-	}
+	g.AddFootprint(a)
 }
 
 func (g *Game) CheckMovementActor(a Actor, v Vector) Vector {

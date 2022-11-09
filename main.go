@@ -12,12 +12,13 @@ import (
 )
 
 type Game struct {
-	inited  bool
-	op      ebiten.DrawImageOptions
-	farmer  *Actor
-	cows    []*Actor
-	objects []*Object
-	tiles   map[TileCoordinate]*Tile
+	inited     bool
+	op         ebiten.DrawImageOptions
+	farmer     *Actor
+	cows       []*Actor
+	objects    []*Object
+	footprints []*Object
+	tiles      map[TileCoordinate]*Tile
 }
 
 const (
@@ -90,6 +91,8 @@ func (g *Game) Update() error {
 	// Update cow states.
 	g.UpdateCows()
 
+	g.UpdateFootprints()
+
 	return nil
 }
 
@@ -101,6 +104,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.op.GeoM.Reset()
 		g.op.GeoM.Translate(coord.ScreenCoordinateX(), coord.ScreenCoordinateY())
 		screen.DrawImage(tile.image, &g.op)
+	}
+
+	// Footprints
+	for index := range g.footprints {
+		s := g.footprints[index]
+		g.op.GeoM.Reset()
+		g.op.GeoM.Translate(s.pos.x, s.pos.y)
+		screen.DrawImage(s.image, &g.op)
 	}
 
 	// Objects: below actors

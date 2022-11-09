@@ -15,6 +15,8 @@ type Object struct {
 	height      float64
 	collidable  bool
 	aboveActors bool
+	belongsTo   string
+	createdAt   int64
 }
 
 func (o *Object) BoundingBox() BoundingBox {
@@ -68,18 +70,4 @@ func (g *Game) CreateRandomTree() []*Object {
 
 func (g *Game) CreateRandomCowPie() *Object {
 	return g.CreateRandomObject(cowPieImage, false, false)
-}
-
-func (g *Game) CreateFootprint(a Actor) *Object {
-	w, h := footprintIceImage.Size()
-
-	return &Object{
-		id:          uuid.NewString(),
-		image:       footprintIceImage,
-		pos:         &ScreenCoordinate{a.BoundingBox().CenterX(), a.BoundingBox().Bottom()},
-		width:       float64(w),
-		height:      float64(h),
-		collidable:  false,
-		aboveActors: false,
-	}
 }
