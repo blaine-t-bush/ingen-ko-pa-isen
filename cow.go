@@ -25,7 +25,7 @@ func (g *Game) UpdateCows() {
 		cow.velocity.len = ChooseCowSpeed(cow)
 
 		// update position based on velocity
-		g.MoveActor(*cow, *cow.velocity, CowSpeedMultiplier)
+		g.MoveActor(*cow, *cow.velocity)
 
 		// shunt cows if they've managed to move past borders
 		cow.Shunt()

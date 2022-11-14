@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	FootprintSpacing    = 10
-	FootprintLifetimeMs = 3 // in seconds
+	FootprintSpacing      = 10
+	FootprintLifetimeMs   = 3 // in seconds
+	MomentumScalingFactor = 40
 )
 
 type Actor struct {
@@ -27,8 +28,9 @@ func (a Actor) BoundingBox() BoundingBox {
 	return BoundingBox{pos: *a.pos, width: a.width, height: a.height}
 }
 
-func (a *Actor) Move(offset Vector) {
-	a.pos.Translate(offset)
+func (a *Actor) Move(velocity Vector) {
+	a.pos.Translate(velocity)
+	a.velocity = &velocity
 }
 
 func (a *Actor) Shunt() {
@@ -53,13 +55,22 @@ func (a *Actor) Shunt() {
 	}
 }
 
-func (g *Game) MoveActor(a Actor, v Vector, speedMultiplier float64) {
+func (g *Game) MoveActor(a Actor, v Vector) {
 	v = g.CheckMovementActor(a, v)
 	a.Move(v)
 	g.AddFootprint(a, v)
 }
 
 func (g *Game) CheckMovementActor(a Actor, v Vector) Vector {
+	// check if actor is on ice. this may result in sliding.
+	// if on ice, translation is a combination of the input velocity and existing velocity.
+	// i.e. momentum is conserved on ice which results in sliding.
+	if g.CoordinateIsOnTerrainType(ScreenCoordinate{a.BoundingBox().CenterX(), a.BoundingBox().Bottom()}, TerrainTypeIce) {
+		v.SetXY(ScreenCoordinate{x: v.X()/MomentumScalingFactor + a.velocity.X(), y: v.Y()/MomentumScalingFactor + a.velocity.Y()})
+		v.Normalize()
+		v.Scale(FarmerSpeedMultiplier)
+	}
+
 	// check if move would result in collision
 	newPosX := &ScreenCoordinate{a.pos.x + v.X(), a.pos.y}
 	newPosY := &ScreenCoordinate{a.pos.x, a.pos.y + v.Y()}
@@ -78,6 +89,8 @@ func (g *Game) CheckMovementActor(a Actor, v Vector) Vector {
 			v = Vector{0, 0}
 		}
 	}
+
+	a.velocity.SetXY(ScreenCoordinate{x: v.X(), y: v.Y()})
 
 	return v
 }

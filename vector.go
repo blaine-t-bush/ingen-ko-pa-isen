@@ -86,3 +86,7 @@ func VectorFromPoints(from ScreenCoordinate, to ScreenCoordinate) Vector {
 	y := to.y - from.y
 	return VectorFromXY(ScreenCoordinate{x, y})
 }
+
+func (v1 *Vector) Add(v2 Vector) {
+	v1.SetXY(ScreenCoordinate{x: v1.X() + v2.X(), y: v1.Y() + v2.Y()})
+}

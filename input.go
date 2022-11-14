@@ -27,7 +27,7 @@ func (g *Game) HandleMouseLeftClick() error {
 		velocity := VectorFromPoints(farmerPos, mousePos)
 		velocity.Normalize()
 		velocity.Scale(FarmerSpeedMultiplier)
-		g.MoveActor(*g.farmer, velocity, FarmerSpeedMultiplier)
+		g.MoveActor(*g.farmer, velocity)
 	}
 
 	return nil
@@ -61,7 +61,7 @@ func (g *Game) HandleKeyPresses(keys []ebiten.Key) error {
 
 		v.Normalize()
 		v.Scale(FarmerSpeedMultiplier)
-		g.MoveActor(*g.farmer, v, FarmerSpeedMultiplier)
+		g.MoveActor(*g.farmer, v)
 	}
 
 	return nil

@@ -34,5 +34,6 @@ func (g *Game) CreateFarmer(img ebiten.Image) *Actor {
 		width:                      boundingBox.width,
 		height:                     boundingBox.height,
 		distanceSinceLastFootprint: &distanceSinceLastFootprint,
+		velocity:                   &Vector{0, 0},
 	}
 }

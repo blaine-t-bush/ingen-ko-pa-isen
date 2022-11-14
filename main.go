@@ -90,9 +90,14 @@ func (g *Game) Update() error {
 	keys = inpututil.AppendPressedKeys(keys[:0])
 	g.HandleKeyPresses(keys)
 
-	// Update cow states.
-	g.UpdateCows()
+	// Update actor positions based on their velocities.
+	for _, cow := range g.cows {
+		newVelocity := Vector{dir: ChooseCowDirection(cow, g.farmer), len: ChooseCowSpeed(cow)}
+		g.MoveActor(*cow, newVelocity)
+		cow.Shunt()
+	}
 
+	// Update footprints.
 	g.UpdateFootprints()
 
 	return nil
