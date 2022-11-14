@@ -17,10 +17,18 @@ func (a *Actor) UpdateDistanceSinceLastFootprint(distance float64, replace bool)
 func (g *Game) AddFootprint(a Actor, v Vector) {
 	if *a.distanceSinceLastFootprint > FootprintSpacing {
 		w, h := footprintIceImage.Size()
+		coord := ScreenCoordinate{a.BoundingBox().CenterX(), a.BoundingBox().Bottom()}
+		image := footprintIceImage
+		if g.CoordinateIsOnTerrainType(coord, TerrainTypeIce) {
+			image = footprintIceImage
+		} else if g.CoordinateIsOnTerrainType(coord, TerrainTypeSnow) {
+			image = footprintSnowImage
+		}
+
 		g.footprints = append(g.footprints, &Object{
 			id:          uuid.NewString(),
-			image:       footprintIceImage,
-			pos:         &ScreenCoordinate{a.BoundingBox().CenterX(), a.BoundingBox().Bottom()},
+			image:       image,
+			pos:         &coord,
 			width:       float64(w),
 			height:      float64(h),
 			collidable:  false,

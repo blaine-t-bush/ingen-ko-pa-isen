@@ -290,11 +290,11 @@ func (t Tile) ToBoundingBox(c TileCoordinate) BoundingBox {
 }
 
 func (c *ScreenCoordinate) TileCoordinateX() int {
-	return int(math.Mod(c.x, TileSize))
+	return int(math.Floor(c.x / TileSize))
 }
 
 func (c *ScreenCoordinate) TileCoordinateY() int {
-	return int(math.Mod(c.y, TileSize))
+	return int(math.Floor(c.y / TileSize))
 }
 
 func (c *ScreenCoordinate) ToTileCoordinate() TileCoordinate {
