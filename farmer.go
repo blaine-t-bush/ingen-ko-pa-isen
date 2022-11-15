@@ -11,6 +11,12 @@ const (
 	FarmerSpeedMax        = 4
 )
 
+func (g *Game) UpdateFarmer() {
+	g.MoveActor(*g.farmer, *g.farmer.velocityDesired)
+	g.farmer.Shunt()
+	g.farmer.velocityDesired = &Vector{0, 0}
+}
+
 func (g *Game) CreateFarmer(img ebiten.Image) *Actor {
 	w, h := img.Size()
 	boundingBox := &BoundingBox{
@@ -34,9 +40,10 @@ func (g *Game) CreateFarmer(img ebiten.Image) *Actor {
 		pos:                        &boundingBox.pos,
 		width:                      boundingBox.width,
 		height:                     boundingBox.height,
+		distanceSinceLastFootprint: &distanceSinceLastFootprint,
+		speedMax:                   FarmerSpeedMax,
+		speedMultiplier:            FarmerSpeedMultiplier,
 		velocityActual:             &Vector{0, 0},
 		velocityDesired:            &Vector{0, 0},
-		distanceSinceLastFootprint: &distanceSinceLastFootprint,
-		speedMultiplier:            FarmerSpeedMultiplier,
 	}
 }

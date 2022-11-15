@@ -9,7 +9,7 @@ import (
 const (
 	FootprintSpacing      = 10
 	FootprintLifetimeMs   = 3 // in seconds
-	MomentumScalingFactor = 5
+	MomentumScalingFactor = 10
 	SpeedMax              = 3
 )
 
@@ -20,6 +20,7 @@ type Actor struct {
 	width                      float64
 	height                     float64
 	distanceSinceLastFootprint *float64
+	speedMax                   float64
 	speedMultiplier            float64
 	velocityActual             *Vector
 	velocityDesired            *Vector
@@ -29,6 +30,50 @@ type Actor struct {
 
 func (a Actor) BoundingBox() BoundingBox {
 	return BoundingBox{pos: *a.pos, width: a.width, height: a.height}
+}
+
+func (g *Game) MoveActor(a Actor, velocityDesired Vector) {
+	velocityActual := g.CheckMovementActor(a, velocityDesired)
+	a.velocityActual.SetXY(ScreenCoordinate{x: velocityActual.X(), y: velocityActual.Y()})
+	if !WithinEps(velocityActual.len, eps) {
+		a.Move(velocityActual)
+		g.AddFootprint(a, velocityActual)
+	}
+}
+
+func (g *Game) CheckMovementActor(a Actor, velocityDesired Vector) Vector {
+	// check if actor is on ice. this may result in sliding.
+	// if on ice, translation is a combination of the input velocity and existing velocity.
+	// i.e. momentum is conserved on ice which results in sliding.
+	var newVelocity Vector
+	if g.CoordinateIsOnTerrainType(ScreenCoordinate{a.BoundingBox().CenterX(), a.BoundingBox().Bottom()}, TerrainTypeIce) {
+		newVelocity.SetXY(ScreenCoordinate{x: velocityDesired.X()/MomentumScalingFactor + a.velocityActual.X(), y: velocityDesired.Y()/MomentumScalingFactor + a.velocityActual.Y()})
+	} else {
+		newVelocity.SetXY(ScreenCoordinate{x: velocityDesired.X(), y: velocityDesired.Y()})
+	}
+
+	newVelocity.BoundLength(a.speedMax)
+
+	// check if move would result in collision
+	newPosX := &ScreenCoordinate{a.pos.x + newVelocity.X(), a.pos.y}
+	newPosY := &ScreenCoordinate{a.pos.x, a.pos.y + newVelocity.Y()}
+	newPosXY := &ScreenCoordinate{a.pos.x + newVelocity.X(), a.pos.y + newVelocity.Y()}
+
+	validX := !g.CheckCollision(BoundingBox{pos: *newPosX, width: a.width, height: a.height})
+	validY := !g.CheckCollision(BoundingBox{pos: *newPosY, width: a.width, height: a.height})
+	validXY := !g.CheckCollision(BoundingBox{pos: *newPosXY, width: a.width, height: a.height})
+
+	if !validXY {
+		if validX && !validY {
+			newVelocity.RemoveY()
+		} else if validY && !validX {
+			newVelocity.RemoveX()
+		} else {
+			newVelocity = Vector{0, 0}
+		}
+	}
+
+	return newVelocity
 }
 
 func (a *Actor) Move(velocity Vector) {
@@ -56,48 +101,4 @@ func (a *Actor) Shunt() {
 	} else if collidesRight {
 		a.Move(Vector{len: overlapRight + 1, dir: math.Pi})
 	}
-}
-
-func (g *Game) MoveActor(a Actor, velocityDesired Vector) {
-	velocityActual := g.CheckMovementActor(a, velocityDesired)
-	a.velocityActual.SetXY(ScreenCoordinate{x: velocityActual.X(), y: velocityActual.Y()})
-	if !WithinEps(velocityActual.len, eps) {
-		a.Move(velocityActual)
-		g.AddFootprint(a, velocityActual)
-	}
-}
-
-func (g *Game) CheckMovementActor(a Actor, velocityDesired Vector) Vector {
-	// check if actor is on ice. this may result in sliding.
-	// if on ice, translation is a combination of the input velocity and existing velocity.
-	// i.e. momentum is conserved on ice which results in sliding.
-	var newVelocity Vector
-	if g.CoordinateIsOnTerrainType(ScreenCoordinate{a.BoundingBox().CenterX(), a.BoundingBox().Bottom()}, TerrainTypeIce) {
-		newVelocity.SetXY(ScreenCoordinate{x: velocityDesired.X()/MomentumScalingFactor + a.velocityActual.X(), y: velocityDesired.Y()/MomentumScalingFactor + a.velocityActual.Y()})
-	} else {
-		newVelocity.SetXY(ScreenCoordinate{x: velocityDesired.X(), y: velocityDesired.Y()})
-	}
-
-	newVelocity.BoundLength(SpeedMax)
-
-	// check if move would result in collision
-	newPosX := &ScreenCoordinate{a.pos.x + newVelocity.X(), a.pos.y}
-	newPosY := &ScreenCoordinate{a.pos.x, a.pos.y + newVelocity.Y()}
-	newPosXY := &ScreenCoordinate{a.pos.x + newVelocity.X(), a.pos.y + newVelocity.Y()}
-
-	validX := !g.CheckCollision(BoundingBox{pos: *newPosX, width: a.width, height: a.height})
-	validY := !g.CheckCollision(BoundingBox{pos: *newPosY, width: a.width, height: a.height})
-	validXY := !g.CheckCollision(BoundingBox{pos: *newPosXY, width: a.width, height: a.height})
-
-	if !validXY {
-		if validX && !validY {
-			newVelocity.RemoveY()
-		} else if validY && !validX {
-			newVelocity.RemoveX()
-		} else {
-			newVelocity = Vector{0, 0}
-		}
-	}
-
-	return newVelocity
 }

@@ -45,34 +45,6 @@ func (g *Game) RandomCoordinateOfTerrainType(terrainType int) ScreenCoordinate {
 	return ScreenCoordinate{x: x, y: y}
 }
 
-func (g *Game) RandomCoordinateOfTerrainTypeWithArea(terrainType int, w float64, h float64) ScreenCoordinate {
-	tileCoordinates := []TileCoordinate{}
-
-	for coord, tile := range g.tiles {
-		if tile.terrainType == terrainType {
-			tileCoordinates = append(tileCoordinates, coord)
-		}
-	}
-
-	tileCoordinate := tileCoordinates[rand.Intn(len(tileCoordinates)-1)]
-	screenCoordinate := tileCoordinate.ToScreenCoordinate()
-	x := screenCoordinate.x + float64(rand.Intn(TileSize))
-	y := screenCoordinate.y + float64(rand.Intn(TileSize))
-
-	for {
-		if !g.CoordinateIsOnTerrainType(ScreenCoordinate{x: x + w, y: y + h}, terrainType) {
-			tileCoordinate = tileCoordinates[rand.Intn(len(tileCoordinates)-1)]
-			screenCoordinate = tileCoordinate.ToScreenCoordinate()
-			x = screenCoordinate.x + float64(rand.Intn(TileSize))
-			y = screenCoordinate.y + float64(rand.Intn(TileSize))
-		} else {
-			break
-		}
-	}
-
-	return ScreenCoordinate{x: x, y: y}
-}
-
 func (g *Game) CoordinateIsOnTerrainType(c ScreenCoordinate, terrainType int) bool {
 	tileCoordinate := c.ToTileCoordinate()
 	if tile, exists := g.tiles[tileCoordinate]; exists {

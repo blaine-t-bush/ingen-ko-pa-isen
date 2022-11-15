@@ -83,8 +83,6 @@ func (g *Game) Update() error {
 	// Listen for mouse inputs.
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		g.HandleMouseLeftClick()
-	} else {
-		g.farmer.velocityDesired = &Vector{0, 0}
 	}
 
 	// Listen for keyboard inputs.
@@ -94,7 +92,7 @@ func (g *Game) Update() error {
 
 	// Update actor positions based on their velocities.
 	g.UpdateCows()
-	g.MoveActor(*g.farmer, *g.farmer.velocityDesired)
+	g.UpdateFarmer()
 
 	// Update footprints.
 	g.UpdateFootprints()

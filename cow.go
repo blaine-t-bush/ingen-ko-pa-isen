@@ -103,11 +103,14 @@ func (g *Game) CreateRandomCow() *Actor {
 	currentDir := noiseSpeed.GetValueScaled(CowSpeedMultiplier)
 
 	return &Actor{
-		id:     uuid.NewString(),
-		image:  cowImage,
-		pos:    &boundingBox.pos,
-		width:  boundingBox.width,
-		height: boundingBox.height,
+		id:                         uuid.NewString(),
+		image:                      cowImage,
+		pos:                        &boundingBox.pos,
+		width:                      boundingBox.width,
+		height:                     boundingBox.height,
+		distanceSinceLastFootprint: &distanceSinceLastFootprint,
+		speedMax:                   CowSpeedMax,
+		speedMultiplier:            CowSpeedMultiplier,
 		velocityActual: &Vector{
 			dir: currentSpeed,
 			len: currentDir,
@@ -116,9 +119,7 @@ func (g *Game) CreateRandomCow() *Actor {
 			dir: currentSpeed,
 			len: currentDir,
 		},
-		distanceSinceLastFootprint: &distanceSinceLastFootprint,
-		speedMultiplier:            CowSpeedMultiplier,
-		noiseSpeed:                 &noiseSpeed,
-		noiseDir:                   &noiseDir,
+		noiseSpeed: &noiseSpeed,
+		noiseDir:   &noiseDir,
 	}
 }

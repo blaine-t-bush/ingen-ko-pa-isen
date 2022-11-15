@@ -26,6 +26,7 @@ func (g *Game) HandleMouseLeftClick() error {
 	if !mousePos.WithinRadius(farmerPos, 2) {
 		velocity := VectorFromPoints(farmerPos, mousePos)
 		velocity.Normalize()
+		velocity.Scale(g.farmer.speedMultiplier)
 		g.farmer.velocityDesired = &velocity
 	}
 
@@ -59,9 +60,8 @@ func (g *Game) HandleKeyPresses(keys []ebiten.Key) error {
 		}
 
 		velocity.Normalize()
+		velocity.Scale(g.farmer.speedMultiplier)
 		g.farmer.velocityDesired = &velocity
-	} else {
-		g.farmer.velocityDesired = &Vector{0, 0}
 	}
 
 	return nil
