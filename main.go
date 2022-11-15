@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	_ "image/png"
 	"log"
@@ -56,23 +57,32 @@ func (g *Game) init() {
 		g.inited = true
 	}()
 
+	fmt.Println("Initializing game...")
+	fmt.Println(" - Seeding random number generator...")
 	rand.Seed(time.Now().UnixNano())
 
+	fmt.Println(" - Generating tilemap...")
 	g.tiles = GenerateTiles()
 
+	fmt.Println(" - Creating trees...")
 	for i := 0; i < 3; i++ {
 		g.objects = append(g.objects, g.CreateRandomTree()...)
 	}
 
+	fmt.Println(" - Creating cow pies...")
 	for i := 0; i < 3; i++ {
 		g.objects = append(g.objects, g.CreateRandomCowPie())
 	}
 
+	fmt.Println(" - Creating cows...")
 	for i := 0; i < 5; i++ {
 		g.cows = append(g.cows, g.CreateRandomCow())
 	}
 
+	fmt.Println(" - Creating farmer...")
 	g.farmer = g.CreateFarmer(*farmerImage)
+
+	fmt.Println("Done initializing. Running game...")
 }
 
 func (g *Game) Update() error {
