@@ -19,14 +19,24 @@ const (
 	TileIceWithStreaks
 	TileSnow
 	TileSnowWithSpeckles
-	TileSnowToIceTop
-	TileSnowToIceTopRight
-	TileSnowToIceRight
-	TileSnowToIceBottomRight
-	TileSnowToIceBottom
-	TileSnowToIceBottomLeft
-	TileSnowToIceLeft
-	TileSnowToIceTopLeft
+	TileSnowIceTop
+	TileSnowIceRight
+	TileSnowIceBottom
+	TileSnowIceLeft
+	TileSnowIceStripHorizontal
+	TileSnowIceStripVertical
+	TileSnowIceJutTop
+	TileSnowIceJutRight
+	TileSnowIceJutBottom
+	TileSnowIceJutLeft
+	TileSnowIceInnerCornerTopRight
+	TileSnowIceInnerCornerBottomRight
+	TileSnowIceInnerCornerBottomLeft
+	TileSnowIceInnerCornerTopLeft
+	TileSnowIceOuterCornerTopRight
+	TileSnowIceOuterCornerBottomRight
+	TileSnowIceOuterCornerBottomLeft
+	TileSnowIceOuterCornerTopLeft
 	TileIceHoleTop
 	TileIceHoleTopRight
 	TileIceHoleRight
@@ -43,73 +53,103 @@ var (
 		"S": TileSnow,
 	}
 
-	TileFilenames = map[int]string{
-		TileIce:                  "./assets/tiles/ice.png",
-		TileIceWithStreaks:       "./assets/tiles/ice_streaks.png",
-		TileSnow:                 "./assets/tiles/snow.png",
-		TileSnowWithSpeckles:     "./assets/tiles/snow_speckled.png",
-		TileSnowToIceTop:         "./assets/tiles/snow_to_ice_T.png",
-		TileSnowToIceTopRight:    "./assets/tiles/snow_to_ice_TR.png",
-		TileSnowToIceRight:       "./assets/tiles/snow_to_ice_R.png",
-		TileSnowToIceBottomRight: "./assets/tiles/snow_to_ice_BR.png",
-		TileSnowToIceBottom:      "./assets/tiles/snow_to_ice_B.png",
-		TileSnowToIceBottomLeft:  "./assets/tiles/snow_to_ice_BL.png",
-		TileSnowToIceLeft:        "./assets/tiles/snow_to_ice_L.png",
-		TileSnowToIceTopLeft:     "./assets/tiles/snow_to_ice_TL.png",
-		TileIceHoleTop:           "./assets/tiles/ice_hole_T.png",
-		TileIceHoleTopRight:      "./assets/tiles/ice_hole_TR.png",
-		TileIceHoleRight:         "./assets/tiles/ice_hole_R.png",
-		TileIceHoleBottomRight:   "./assets/tiles/ice_hole_BR.png",
-		TileIceHoleBottom:        "./assets/tiles/ice_hole_B.png",
-		TileIceHoleBottomLeft:    "./assets/tiles/ice_hole_BL.png",
-		TileIceHoleLeft:          "./assets/tiles/ice_hole_L.png",
-		TileIceHoleTopLeft:       "./assets/tiles/ice_hole_TL.png",
+	TileImage = map[int]*ebiten.Image{
+		TileIce:                           PrepareImage("./assets/tiles/ice.png", &ebiten.DrawImageOptions{}),
+		TileIceWithStreaks:                PrepareImage("./assets/tiles/ice_streaks.png", &ebiten.DrawImageOptions{}),
+		TileSnow:                          PrepareImage("./assets/tiles/snow.png", &ebiten.DrawImageOptions{}),
+		TileSnowWithSpeckles:              PrepareImage("./assets/tiles/snow_speckled.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceTop:                    PrepareImage("./assets/tiles/snow_ice_top.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceRight:                  PrepareImage("./assets/tiles/snow_ice_right.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceBottom:                 PrepareImage("./assets/tiles/snow_ice_bottom.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceLeft:                   PrepareImage("./assets/tiles/snow_ice_left.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceStripHorizontal:        PrepareImage("./assets/tiles/snow_ice_strip_horizontal.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceStripVertical:          PrepareImage("./assets/tiles/snow_ice_strip_vertical.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceJutTop:                 PrepareImage("./assets/tiles/snow_ice_jut_top.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceJutRight:               PrepareImage("./assets/tiles/snow_ice_jut_right.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceJutBottom:              PrepareImage("./assets/tiles/snow_ice_jut_bottom.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceJutLeft:                PrepareImage("./assets/tiles/snow_ice_jut_left.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceInnerCornerTopRight:    PrepareImage("./assets/tiles/snow_ice_inner_corner_topright.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceInnerCornerBottomRight: PrepareImage("./assets/tiles/snow_ice_inner_corner_bottomright.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceInnerCornerBottomLeft:  PrepareImage("./assets/tiles/snow_ice_inner_corner_bottomleft.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceInnerCornerTopLeft:     PrepareImage("./assets/tiles/snow_ice_inner_corner_topleft.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceOuterCornerTopRight:    PrepareImage("./assets/tiles/snow_ice_outer_corner_topright.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceOuterCornerBottomRight: PrepareImage("./assets/tiles/snow_ice_outer_corner_bottomright.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceOuterCornerBottomLeft:  PrepareImage("./assets/tiles/snow_ice_outer_corner_bottomleft.png", &ebiten.DrawImageOptions{}),
+		TileSnowIceOuterCornerTopLeft:     PrepareImage("./assets/tiles/snow_ice_outer_corner_topleft.png", &ebiten.DrawImageOptions{}),
+		TileIceHoleTop:                    PrepareImage("./assets/tiles/ice_hole_T.png", &ebiten.DrawImageOptions{}),
+		TileIceHoleTopRight:               PrepareImage("./assets/tiles/ice_hole_TR.png", &ebiten.DrawImageOptions{}),
+		TileIceHoleRight:                  PrepareImage("./assets/tiles/ice_hole_R.png", &ebiten.DrawImageOptions{}),
+		TileIceHoleBottomRight:            PrepareImage("./assets/tiles/ice_hole_BR.png", &ebiten.DrawImageOptions{}),
+		TileIceHoleBottom:                 PrepareImage("./assets/tiles/ice_hole_B.png", &ebiten.DrawImageOptions{}),
+		TileIceHoleBottomLeft:             PrepareImage("./assets/tiles/ice_hole_BL.png", &ebiten.DrawImageOptions{}),
+		TileIceHoleLeft:                   PrepareImage("./assets/tiles/ice_hole_L.png", &ebiten.DrawImageOptions{}),
+		TileIceHoleTopLeft:                PrepareImage("./assets/tiles/ice_hole_TL.png", &ebiten.DrawImageOptions{}),
 	}
 
 	TileCollidable = map[int]bool{
-		TileIce:                  false,
-		TileIceWithStreaks:       false,
-		TileSnow:                 false,
-		TileSnowWithSpeckles:     false,
-		TileSnowToIceTop:         false,
-		TileSnowToIceTopRight:    false,
-		TileSnowToIceRight:       false,
-		TileSnowToIceBottomRight: false,
-		TileSnowToIceBottom:      false,
-		TileSnowToIceBottomLeft:  false,
-		TileSnowToIceLeft:        false,
-		TileSnowToIceTopLeft:     false,
-		TileIceHoleTop:           true,
-		TileIceHoleTopRight:      true,
-		TileIceHoleRight:         true,
-		TileIceHoleBottomRight:   true,
-		TileIceHoleBottom:        true,
-		TileIceHoleBottomLeft:    true,
-		TileIceHoleLeft:          true,
-		TileIceHoleTopLeft:       true,
+		TileIce:                           false,
+		TileIceWithStreaks:                false,
+		TileSnow:                          false,
+		TileSnowWithSpeckles:              false,
+		TileSnowIceTop:                    false,
+		TileSnowIceRight:                  false,
+		TileSnowIceBottom:                 false,
+		TileSnowIceLeft:                   false,
+		TileSnowIceStripHorizontal:        false,
+		TileSnowIceStripVertical:          false,
+		TileSnowIceJutTop:                 false,
+		TileSnowIceJutRight:               false,
+		TileSnowIceJutBottom:              false,
+		TileSnowIceJutLeft:                false,
+		TileSnowIceInnerCornerTopRight:    false,
+		TileSnowIceInnerCornerBottomRight: false,
+		TileSnowIceInnerCornerBottomLeft:  false,
+		TileSnowIceInnerCornerTopLeft:     false,
+		TileSnowIceOuterCornerTopRight:    false,
+		TileSnowIceOuterCornerBottomRight: false,
+		TileSnowIceOuterCornerBottomLeft:  false,
+		TileSnowIceOuterCornerTopLeft:     false,
+		TileIceHoleTop:                    true,
+		TileIceHoleTopRight:               true,
+		TileIceHoleRight:                  true,
+		TileIceHoleBottomRight:            true,
+		TileIceHoleBottom:                 true,
+		TileIceHoleBottomLeft:             true,
+		TileIceHoleLeft:                   true,
+		TileIceHoleTopLeft:                true,
 	}
 
 	TileTerrainType = map[int]int{
-		TileIce:                  TerrainTypeIce,
-		TileIceWithStreaks:       TerrainTypeIce,
-		TileSnow:                 TerrainTypeSnow,
-		TileSnowWithSpeckles:     TerrainTypeSnow,
-		TileSnowToIceTop:         TerrainTypeSnow,
-		TileSnowToIceTopRight:    TerrainTypeSnow,
-		TileSnowToIceRight:       TerrainTypeSnow,
-		TileSnowToIceBottomRight: TerrainTypeSnow,
-		TileSnowToIceBottom:      TerrainTypeSnow,
-		TileSnowToIceBottomLeft:  TerrainTypeSnow,
-		TileSnowToIceLeft:        TerrainTypeSnow,
-		TileSnowToIceTopLeft:     TerrainTypeSnow,
-		TileIceHoleTop:           TerrainTypeIce,
-		TileIceHoleTopRight:      TerrainTypeIce,
-		TileIceHoleRight:         TerrainTypeIce,
-		TileIceHoleBottomRight:   TerrainTypeIce,
-		TileIceHoleBottom:        TerrainTypeIce,
-		TileIceHoleBottomLeft:    TerrainTypeIce,
-		TileIceHoleLeft:          TerrainTypeIce,
-		TileIceHoleTopLeft:       TerrainTypeIce,
+		TileIce:                           TerrainTypeIce,
+		TileIceWithStreaks:                TerrainTypeIce,
+		TileSnow:                          TerrainTypeSnow,
+		TileSnowWithSpeckles:              TerrainTypeSnow,
+		TileSnowIceTop:                    TerrainTypeSnow,
+		TileSnowIceRight:                  TerrainTypeSnow,
+		TileSnowIceBottom:                 TerrainTypeSnow,
+		TileSnowIceLeft:                   TerrainTypeSnow,
+		TileSnowIceStripHorizontal:        TerrainTypeSnow,
+		TileSnowIceStripVertical:          TerrainTypeSnow,
+		TileSnowIceJutTop:                 TerrainTypeSnow,
+		TileSnowIceJutRight:               TerrainTypeSnow,
+		TileSnowIceJutBottom:              TerrainTypeSnow,
+		TileSnowIceJutLeft:                TerrainTypeSnow,
+		TileSnowIceInnerCornerTopRight:    TerrainTypeSnow,
+		TileSnowIceInnerCornerBottomRight: TerrainTypeSnow,
+		TileSnowIceInnerCornerBottomLeft:  TerrainTypeSnow,
+		TileSnowIceInnerCornerTopLeft:     TerrainTypeSnow,
+		TileSnowIceOuterCornerTopRight:    TerrainTypeSnow,
+		TileSnowIceOuterCornerBottomRight: TerrainTypeSnow,
+		TileSnowIceOuterCornerBottomLeft:  TerrainTypeSnow,
+		TileSnowIceOuterCornerTopLeft:     TerrainTypeSnow,
+		TileIceHoleTop:                    TerrainTypeIce,
+		TileIceHoleTopRight:               TerrainTypeIce,
+		TileIceHoleRight:                  TerrainTypeIce,
+		TileIceHoleBottomRight:            TerrainTypeIce,
+		TileIceHoleBottom:                 TerrainTypeIce,
+		TileIceHoleBottomLeft:             TerrainTypeIce,
+		TileIceHoleLeft:                   TerrainTypeIce,
+		TileIceHoleTopLeft:                TerrainTypeIce,
 	}
 )
 
@@ -125,29 +165,6 @@ type Tile struct {
 }
 
 func ReadMap() map[TileCoordinate]*Tile {
-	TileImage := map[int]*ebiten.Image{
-		TileIce:                  PrepareImage("./assets/tiles/ice.png", &ebiten.DrawImageOptions{}),
-		TileIceWithStreaks:       PrepareImage("./assets/tiles/ice_streaks.png", &ebiten.DrawImageOptions{}),
-		TileSnow:                 PrepareImage("./assets/tiles/snow.png", &ebiten.DrawImageOptions{}),
-		TileSnowWithSpeckles:     PrepareImage("./assets/tiles/snow_speckled.png", &ebiten.DrawImageOptions{}),
-		TileSnowToIceTop:         PrepareImage("./assets/tiles/snow_to_ice_T.png", &ebiten.DrawImageOptions{}),
-		TileSnowToIceTopRight:    PrepareImage("./assets/tiles/snow_to_ice_TR.png", &ebiten.DrawImageOptions{}),
-		TileSnowToIceRight:       PrepareImage("./assets/tiles/snow_to_ice_R.png", &ebiten.DrawImageOptions{}),
-		TileSnowToIceBottomRight: PrepareImage("./assets/tiles/snow_to_ice_BR.png", &ebiten.DrawImageOptions{}),
-		TileSnowToIceBottom:      PrepareImage("./assets/tiles/snow_to_ice_B.png", &ebiten.DrawImageOptions{}),
-		TileSnowToIceBottomLeft:  PrepareImage("./assets/tiles/snow_to_ice_BL.png", &ebiten.DrawImageOptions{}),
-		TileSnowToIceLeft:        PrepareImage("./assets/tiles/snow_to_ice_L.png", &ebiten.DrawImageOptions{}),
-		TileSnowToIceTopLeft:     PrepareImage("./assets/tiles/snow_to_ice_TL.png", &ebiten.DrawImageOptions{}),
-		TileIceHoleTop:           PrepareImage("./assets/tiles/ice_hole_T.png", &ebiten.DrawImageOptions{}),
-		TileIceHoleTopRight:      PrepareImage("./assets/tiles/ice_hole_TR.png", &ebiten.DrawImageOptions{}),
-		TileIceHoleRight:         PrepareImage("./assets/tiles/ice_hole_R.png", &ebiten.DrawImageOptions{}),
-		TileIceHoleBottomRight:   PrepareImage("./assets/tiles/ice_hole_BR.png", &ebiten.DrawImageOptions{}),
-		TileIceHoleBottom:        PrepareImage("./assets/tiles/ice_hole_B.png", &ebiten.DrawImageOptions{}),
-		TileIceHoleBottomLeft:    PrepareImage("./assets/tiles/ice_hole_BL.png", &ebiten.DrawImageOptions{}),
-		TileIceHoleLeft:          PrepareImage("./assets/tiles/ice_hole_L.png", &ebiten.DrawImageOptions{}),
-		TileIceHoleTopLeft:       PrepareImage("./assets/tiles/ice_hole_TL.png", &ebiten.DrawImageOptions{}),
-	}
-
 	file, err := os.Open("./maps/default.map")
 	if err != nil {
 		log.Fatal(err)
@@ -175,6 +192,108 @@ func ReadMap() map[TileCoordinate]*Tile {
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
+	}
+
+	// Update tiles based on their neighbors.
+	for coord, tile := range tiles {
+		if coord.x > 0 && coord.x < screenWidth/TileSize-1 && coord.y > 0 && coord.y < screenHeight/TileSize-1 {
+			if tile.terrainType == TerrainTypeSnow {
+				surroundingCoords := []TileCoordinate{
+					{coord.x, coord.y - 1},
+					{coord.x + 1, coord.y - 1},
+					{coord.x + 1, coord.y},
+					{coord.x + 1, coord.y + 1},
+					{coord.x, coord.y + 1},
+					{coord.x - 1, coord.y + 1},
+					{coord.x - 1, coord.y},
+					{coord.x - 1, coord.y - 1},
+				}
+
+				surroundingIceCount := 0
+				for _, surroundingCoord := range surroundingCoords {
+					if tiles[surroundingCoord].terrainType == TerrainTypeIce {
+						surroundingIceCount++
+					}
+				}
+
+				iceAbove := tiles[TileCoordinate{coord.x, coord.y - 1}].terrainType == TerrainTypeIce
+				iceAboveRight := tiles[TileCoordinate{coord.x + 1, coord.y - 1}].terrainType == TerrainTypeIce
+				iceRight := tiles[TileCoordinate{coord.x + 1, coord.y}].terrainType == TerrainTypeIce
+				iceBelowRight := tiles[TileCoordinate{coord.x + 1, coord.y + 1}].terrainType == TerrainTypeIce
+				iceBelow := tiles[TileCoordinate{coord.x, coord.y + 1}].terrainType == TerrainTypeIce
+				iceBelowLeft := tiles[TileCoordinate{coord.x - 1, coord.y + 1}].terrainType == TerrainTypeIce
+				iceLeft := tiles[TileCoordinate{coord.x - 1, coord.y}].terrainType == TerrainTypeIce
+				iceAboveLeft := tiles[TileCoordinate{coord.x - 1, coord.y - 1}].terrainType == TerrainTypeIce
+
+				if surroundingIceCount != 0 {
+					var newTileNumber int
+
+					if iceAbove && iceAboveLeft && iceLeft && iceBelowLeft && iceBelow {
+						newTileNumber = TileSnowIceJutRight
+					} else if iceLeft && iceBelowLeft && iceBelow && iceBelowRight && iceRight {
+						newTileNumber = TileSnowIceJutTop
+					} else if iceBelow && iceBelowRight && iceRight && iceAboveRight && iceAbove {
+						newTileNumber = TileSnowIceJutLeft
+					} else if iceRight && iceAboveRight && iceAbove && iceAboveLeft && iceLeft {
+						newTileNumber = TileSnowIceJutBottom
+					} else if iceRight && iceBelow && !iceAbove && !iceLeft {
+						newTileNumber = TileSnowIceOuterCornerBottomRight
+					} else if !iceRight && iceBelow && !iceAbove && iceLeft {
+						newTileNumber = TileSnowIceOuterCornerBottomLeft
+					} else if !iceRight && !iceBelow && iceAbove && iceLeft {
+						newTileNumber = TileSnowIceOuterCornerTopLeft
+					} else if iceRight && !iceBelow && iceAbove && !iceLeft {
+						newTileNumber = TileSnowIceOuterCornerTopRight
+					} else if !iceAbove && !iceAboveRight && !iceRight && !iceBelowRight && !iceBelow && iceBelowLeft && !iceLeft && !iceAboveLeft {
+						newTileNumber = TileSnowIceInnerCornerBottomLeft
+					} else if !iceAbove && !iceAboveRight && !iceRight && !iceBelowRight && !iceBelow && !iceBelowLeft && !iceLeft && iceAboveLeft {
+						newTileNumber = TileSnowIceInnerCornerTopLeft
+					} else if !iceAbove && iceAboveRight && !iceRight && !iceBelowRight && !iceBelow && !iceBelowLeft && !iceLeft && !iceAboveLeft {
+						newTileNumber = TileSnowIceInnerCornerTopRight
+					} else if !iceAbove && !iceAboveRight && !iceRight && iceBelowRight && !iceBelow && !iceBelowLeft && !iceLeft && !iceAboveLeft {
+						newTileNumber = TileSnowIceInnerCornerBottomRight
+					} else if iceAbove && iceBelow {
+						newTileNumber = TileSnowIceStripHorizontal
+					} else if iceLeft && iceRight {
+						newTileNumber = TileSnowIceStripVertical
+					} else if iceAbove {
+						newTileNumber = TileSnowIceTop
+					} else if iceRight {
+						newTileNumber = TileSnowIceRight
+					} else if iceBelow {
+						newTileNumber = TileSnowIceBottom
+					} else if iceLeft {
+						newTileNumber = TileSnowIceLeft
+					} else {
+						newTileNumber = TileSnow
+					}
+
+					tiles[coord] = &Tile{
+						image:       TileImage[newTileNumber],
+						collidable:  TileCollidable[newTileNumber],
+						terrainType: TileTerrainType[newTileNumber],
+					}
+				} else {
+					if rand.Float64() <= 0.2 {
+						newTileNumber := TileSnowWithSpeckles
+						tiles[coord] = &Tile{
+							image:       TileImage[newTileNumber],
+							collidable:  TileCollidable[newTileNumber],
+							terrainType: TileTerrainType[newTileNumber],
+						}
+					}
+				}
+			} else if tile.terrainType == TerrainTypeIce {
+				if rand.Float64() <= 0.02 {
+					newTileNumber := TileIceWithStreaks
+					tiles[coord] = &Tile{
+						image:       TileImage[newTileNumber],
+						collidable:  TileCollidable[newTileNumber],
+						terrainType: TileTerrainType[newTileNumber],
+					}
+				}
+			}
+		}
 	}
 
 	return tiles

@@ -65,7 +65,7 @@ func (g *Game) init() {
 	g.tiles = GenerateTiles()
 
 	fmt.Println(" - Creating trees...")
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 8; i++ {
 		g.objects = append(g.objects, g.CreateRandomTree()...)
 	}
 
