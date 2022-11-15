@@ -8,6 +8,7 @@ import (
 
 const (
 	FarmerSpeedMultiplier = 4
+	FarmerSpeedMax        = 4
 )
 
 func (g *Game) CreateFarmer(img ebiten.Image) *Actor {
@@ -33,7 +34,9 @@ func (g *Game) CreateFarmer(img ebiten.Image) *Actor {
 		pos:                        &boundingBox.pos,
 		width:                      boundingBox.width,
 		height:                     boundingBox.height,
+		velocityActual:             &Vector{0, 0},
+		velocityDesired:            &Vector{0, 0},
 		distanceSinceLastFootprint: &distanceSinceLastFootprint,
-		velocity:                   &Vector{0, 0},
+		speedMultiplier:            FarmerSpeedMultiplier,
 	}
 }

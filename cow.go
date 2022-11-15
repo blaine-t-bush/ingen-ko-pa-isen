@@ -21,11 +21,11 @@ const (
 func (g *Game) UpdateCows() {
 	for _, cow := range g.cows {
 		// possibly choose a new wander direction
-		cow.velocity.dir = ChooseCowDirection(cow, g.farmer)
-		cow.velocity.len = ChooseCowSpeed(cow)
+		cow.velocityDesired.dir = ChooseCowDirection(cow, g.farmer)
+		cow.velocityDesired.len = ChooseCowSpeed(cow)
 
 		// update position based on velocity
-		g.MoveActor(*cow, *cow.velocity)
+		g.MoveActor(*cow, *cow.velocityDesired)
 
 		// shunt cows if they've managed to move past borders
 		cow.Shunt()
@@ -33,7 +33,7 @@ func (g *Game) UpdateCows() {
 }
 
 func ChooseCowDirection(cow *Actor, farmer *Actor) float64 {
-	dir := cow.velocity.dir
+	dir := cow.velocityDesired.dir
 
 	// Small chance to choose new direction.
 	if rand.Float64() >= 1-CowDirectionChangeProbability {
@@ -65,7 +65,7 @@ func ChooseCowDirection(cow *Actor, farmer *Actor) float64 {
 }
 
 func ChooseCowSpeed(cow *Actor) float64 {
-	speed := cow.velocity.len
+	speed := cow.velocityDesired.len
 
 	if rand.Float64() >= 1-CowSpeedChangeProbability {
 		speed = cow.noiseSpeed.UpdateAndGetValueScaled(CowSpeedMultiplier)
@@ -99,6 +99,8 @@ func (g *Game) CreateRandomCow() *Actor {
 	noiseSpeed := GenerateNoise(CowNoiseSize, CowNoiseSize)
 	noiseDir := GenerateNoise(CowNoiseSize, CowNoiseSize)
 	distanceSinceLastFootprint := 0.0
+	currentSpeed := noiseDir.GetValueScaled(2 * math.Pi)
+	currentDir := noiseSpeed.GetValueScaled(CowSpeedMultiplier)
 
 	return &Actor{
 		id:     uuid.NewString(),
@@ -106,11 +108,16 @@ func (g *Game) CreateRandomCow() *Actor {
 		pos:    &boundingBox.pos,
 		width:  boundingBox.width,
 		height: boundingBox.height,
-		velocity: &Vector{
-			dir: noiseDir.GetValueScaled(2 * math.Pi),
-			len: noiseSpeed.GetValueScaled(CowSpeedMultiplier),
+		velocityActual: &Vector{
+			dir: currentSpeed,
+			len: currentDir,
+		},
+		velocityDesired: &Vector{
+			dir: currentSpeed,
+			len: currentDir,
 		},
 		distanceSinceLastFootprint: &distanceSinceLastFootprint,
+		speedMultiplier:            CowSpeedMultiplier,
 		noiseSpeed:                 &noiseSpeed,
 		noiseDir:                   &noiseDir,
 	}

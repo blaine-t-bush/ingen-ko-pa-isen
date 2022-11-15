@@ -26,8 +26,7 @@ func (g *Game) HandleMouseLeftClick() error {
 	if !mousePos.WithinRadius(farmerPos, 2) {
 		velocity := VectorFromPoints(farmerPos, mousePos)
 		velocity.Normalize()
-		velocity.Scale(FarmerSpeedMultiplier)
-		g.MoveActor(*g.farmer, velocity)
+		g.farmer.velocityDesired = &velocity
 	}
 
 	return nil
@@ -40,28 +39,29 @@ func (g *Game) HandleKeyPresses(keys []ebiten.Key) error {
 	pressedDown := KeysIncludes(keys, ebiten.KeyArrowDown) || KeysIncludes(keys, ebiten.KeyS)
 
 	if pressedLeft || pressedRight || pressedUp || pressedDown {
-		var v Vector
+		var velocity Vector
 		if pressedLeft && pressedUp {
-			v = VectorFromXY(ScreenCoordinate{-1, -1})
+			velocity = VectorFromXY(ScreenCoordinate{-1, -1})
 		} else if pressedLeft && pressedDown {
-			v = VectorFromXY(ScreenCoordinate{-1, 1})
+			velocity = VectorFromXY(ScreenCoordinate{-1, 1})
 		} else if pressedLeft {
-			v = VectorFromXY(ScreenCoordinate{-1, 0})
+			velocity = VectorFromXY(ScreenCoordinate{-1, 0})
 		} else if pressedRight && pressedUp {
-			v = VectorFromXY(ScreenCoordinate{1, -1})
+			velocity = VectorFromXY(ScreenCoordinate{1, -1})
 		} else if pressedRight && pressedDown {
-			v = VectorFromXY(ScreenCoordinate{1, 1})
+			velocity = VectorFromXY(ScreenCoordinate{1, 1})
 		} else if pressedRight {
-			v = VectorFromXY(ScreenCoordinate{1, 0})
+			velocity = VectorFromXY(ScreenCoordinate{1, 0})
 		} else if pressedUp {
-			v = VectorFromXY(ScreenCoordinate{0, -1})
+			velocity = VectorFromXY(ScreenCoordinate{0, -1})
 		} else if pressedDown {
-			v = VectorFromXY(ScreenCoordinate{0, 1})
+			velocity = VectorFromXY(ScreenCoordinate{0, 1})
 		}
 
-		v.Normalize()
-		v.Scale(FarmerSpeedMultiplier)
-		g.MoveActor(*g.farmer, v)
+		velocity.Normalize()
+		g.farmer.velocityDesired = &velocity
+	} else {
+		g.farmer.velocityDesired = &Vector{0, 0}
 	}
 
 	return nil

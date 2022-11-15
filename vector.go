@@ -57,6 +57,10 @@ func (v *Vector) BoundDirection() {
 	v.dir = math.Mod(v.dir, 2*math.Pi)
 }
 
+func (v *Vector) BoundLength(maxLen float64) {
+	v.len = math.Min(v.len, maxLen)
+}
+
 func (v *Vector) RemoveX() {
 	v.len = math.Abs(v.Y())
 	if v.Y() >= 0 {
