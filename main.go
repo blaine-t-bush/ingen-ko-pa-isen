@@ -9,17 +9,19 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Game struct {
-	inited     bool
-	op         ebiten.DrawImageOptions
-	farmer     *Actor
-	cows       []*Actor
-	objects    []*Object
-	footprints []*Object
-	tiles      map[TileCoordinate]*Tile
+	inited            bool
+	op                ebiten.DrawImageOptions
+	numberOfCowsOnIce int
+	farmer            *Actor
+	cows              []*Actor
+	objects           []*Object
+	footprints        []*Object
+	tiles             map[TileCoordinate]*Tile
 }
 
 const (
@@ -82,6 +84,9 @@ func (g *Game) init() {
 	fmt.Println(" - Creating farmer...")
 	g.farmer = g.CreateFarmer(*farmerImage)
 
+	fmt.Println(" - Calculating current score...")
+	g.UpdateScore()
+
 	fmt.Println("Done initializing. Running game...")
 }
 
@@ -106,6 +111,9 @@ func (g *Game) Update() error {
 
 	// Update footprints.
 	g.UpdateFootprints()
+
+	// Update score.
+	g.UpdateScore()
 
 	return nil
 }
@@ -166,6 +174,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.op.GeoM.Reset()
 	g.op.GeoM.Translate(float64(screenWidth)/2-float64(w)/2, 0)
 	screen.DrawImage(titleImage, &g.op)
+
+	// Score
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("kor på isen: %d", g.numberOfCowsOnIce), 10, 5)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

@@ -50,6 +50,10 @@ func (b BoundingBox) Center() ScreenCoordinate {
 	return ScreenCoordinate{x: b.CenterX(), y: b.CenterY()}
 }
 
+func (b BoundingBox) BottomCenter() ScreenCoordinate {
+	return ScreenCoordinate{x: b.CenterX(), y: b.Bottom()}
+}
+
 func (b BoundingBox) CollidesWithTopBorder() (bool, float64) {
 	if b.Top() <= 0 {
 		return true, b.Top()
