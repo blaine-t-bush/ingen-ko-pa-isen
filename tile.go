@@ -15,11 +15,12 @@ const (
 	SnowBorderSize = 5
 	TerrainTypeIce = iota
 	TerrainTypeSnow
+	TerrainTypeWater
 	TileIce = iota
-	TileIceWithStreaks
 	TileIceWithCracks1
 	TileIceWithCracks2
 	TileIceWithCracks3
+	TileIceBroken
 	TileSnow
 	TileSnowWithSpeckles
 	TileSnowIceTop
@@ -51,6 +52,7 @@ const (
 	StepCountThresholdCracked1 = 10
 	StepCountThresholdCracked2 = 20
 	StepCountThresholdCracked3 = 30
+	StepCountThresholdBroken   = 40
 )
 
 var (
@@ -61,10 +63,10 @@ var (
 
 	TileImage = map[int]*ebiten.Image{
 		TileIce:                           PrepareImage("./assets/tiles/ice.png", &ebiten.DrawImageOptions{}),
-		TileIceWithStreaks:                PrepareImage("./assets/tiles/ice_streaks.png", &ebiten.DrawImageOptions{}),
 		TileIceWithCracks1:                PrepareImage("./assets/tiles/ice_cracks_1.png", &ebiten.DrawImageOptions{}),
 		TileIceWithCracks2:                PrepareImage("./assets/tiles/ice_cracks_2.png", &ebiten.DrawImageOptions{}),
 		TileIceWithCracks3:                PrepareImage("./assets/tiles/ice_cracks_3.png", &ebiten.DrawImageOptions{}),
+		TileIceBroken:                     PrepareImage("./assets/tiles/ice_broken.png", &ebiten.DrawImageOptions{}),
 		TileSnow:                          PrepareImage("./assets/tiles/snow.png", &ebiten.DrawImageOptions{}),
 		TileSnowWithSpeckles:              PrepareImage("./assets/tiles/snow_speckled.png", &ebiten.DrawImageOptions{}),
 		TileSnowIceTop:                    PrepareImage("./assets/tiles/snow_ice_top.png", &ebiten.DrawImageOptions{}),
@@ -97,10 +99,10 @@ var (
 
 	TileCollidable = map[int]bool{
 		TileIce:                           false,
-		TileIceWithStreaks:                false,
 		TileIceWithCracks1:                false,
 		TileIceWithCracks2:                false,
 		TileIceWithCracks3:                false,
+		TileIceBroken:                     true,
 		TileSnow:                          false,
 		TileSnowWithSpeckles:              false,
 		TileSnowIceTop:                    false,
@@ -133,10 +135,10 @@ var (
 
 	TileTerrainType = map[int]int{
 		TileIce:                           TerrainTypeIce,
-		TileIceWithStreaks:                TerrainTypeIce,
 		TileIceWithCracks1:                TerrainTypeIce,
 		TileIceWithCracks2:                TerrainTypeIce,
 		TileIceWithCracks3:                TerrainTypeIce,
+		TileIceBroken:                     TerrainTypeIce,
 		TileSnow:                          TerrainTypeSnow,
 		TileSnowWithSpeckles:              TerrainTypeSnow,
 		TileSnowIceTop:                    TerrainTypeSnow,
@@ -302,16 +304,6 @@ func ReadMap() map[TileCoordinate]*Tile {
 						}
 					}
 				}
-			} else if tile.terrainType == TerrainTypeIce {
-				if rand.Float64() <= 0.02 {
-					newTileNumber := TileIceWithStreaks
-					tiles[coord] = &Tile{
-						image:       TileImage[newTileNumber],
-						collidable:  TileCollidable[newTileNumber],
-						terrainType: TileTerrainType[newTileNumber],
-						stepCount:   0,
-					}
-				}
 			}
 		}
 	}
@@ -319,147 +311,30 @@ func ReadMap() map[TileCoordinate]*Tile {
 	return tiles
 }
 
-func (g *Game) CheckIceTileForCracking(coord ScreenCoordinate) {
+func (g *Game) CheckTileForCracking(coord ScreenCoordinate) {
 	if g.tiles[coord.ToTileCoordinate()].terrainType == TerrainTypeIce {
 		g.tiles[coord.ToTileCoordinate()].stepCount++
 		currentStepCount := g.tiles[coord.ToTileCoordinate()].stepCount
-		if currentStepCount >= StepCountThresholdCracked3 {
-			g.tiles[coord.ToTileCoordinate()].image = TileImage[TileIceWithCracks3]
+		newTileNumber := 0
+		if currentStepCount >= StepCountThresholdBroken {
+			newTileNumber = TileIceBroken
+		} else if currentStepCount >= StepCountThresholdCracked3 {
+			newTileNumber = TileIceWithCracks3
 		} else if currentStepCount >= StepCountThresholdCracked2 {
-			g.tiles[coord.ToTileCoordinate()].image = TileImage[TileIceWithCracks2]
+			newTileNumber = TileIceWithCracks2
 		} else if currentStepCount >= StepCountThresholdCracked1 {
-			g.tiles[coord.ToTileCoordinate()].image = TileImage[TileIceWithCracks1]
+			newTileNumber = TileIceWithCracks1
+		}
+
+		if newTileNumber != 0 {
+			g.tiles[coord.ToTileCoordinate()].image = TileImage[newTileNumber]
+			g.tiles[coord.ToTileCoordinate()].collidable = TileCollidable[newTileNumber]
+			g.tiles[coord.ToTileCoordinate()].terrainType = TileTerrainType[newTileNumber]
 		}
 	}
 }
 
 func GenerateTiles() map[TileCoordinate]*Tile {
-	// // Create slice of tile coordinates based on screen dimensions and tile size.
-	// tileCoordinates := []TileCoordinate{}
-	// tileCountX := screenWidth / TileSize
-	// tileCountY := screenHeight / TileSize
-
-	// for x := 0; x < tileCountX; x++ {
-	// 	for y := 0; y < tileCountY; y++ {
-	// 		tileCoordinates = append(tileCoordinates, TileCoordinate{x, y})
-	// 	}
-	// }
-
-	// // Prepare images that will be used in tiles.
-	// op := &ebiten.DrawImageOptions{}
-	// tileIceImage := PrepareImage("./assets/tiles/ice.png", op)
-	// tileIceStreaksImage := PrepareImage("./assets/tiles/ice_streaks.png", op)
-	// tileIceHoleTLImage := PrepareImage("./assets/tiles/ice_hole_TL.png", op)
-	// tileIceHoleTRImage := PrepareImage("./assets/tiles/ice_hole_TR.png", op)
-	// tileIceHoleBLImage := PrepareImage("./assets/tiles/ice_hole_BL.png", op)
-	// tileIceHoleBRImage := PrepareImage("./assets/tiles/ice_hole_BR.png", op)
-	// tileIceHoleTImage := PrepareImage("./assets/tiles/ice_hole_T.png", op)
-	// tileIceHoleBImage := PrepareImage("./assets/tiles/ice_hole_B.png", op)
-
-	// tileSnowToIceTImage := PrepareImage("./assets/tiles/snow_to_ice_T.png", op)
-	// tileSnowToIceBImage := PrepareImage("./assets/tiles/snow_to_ice_B.png", op)
-	// tileSnowToIceRImage := PrepareImage("./assets/tiles/snow_to_ice_R.png", op)
-	// tileSnowToIceLImage := PrepareImage("./assets/tiles/snow_to_ice_L.png", op)
-
-	// tileSnowToIceTRImage := PrepareImage("./assets/tiles/snow_to_ice_TR.png", op)
-	// tileSnowToIceBRImage := PrepareImage("./assets/tiles/snow_to_ice_BR.png", op)
-	// tileSnowToIceTLImage := PrepareImage("./assets/tiles/snow_to_ice_TL.png", op)
-	// tileSnowToIceBLImage := PrepareImage("./assets/tiles/snow_to_ice_BL.png", op)
-
-	// tileSnowImage := PrepareImage("./assets/tiles/snow.png", op)
-	// tileSnowSpeckledImage := PrepareImage("./assets/tiles/snow_speckled.png", op)
-
-	// // Use slice of tile coordinates to create map of tile coordinates to tiles.
-	// // Start with all ice, then add other things to spice it up.
-	// tiles := map[TileCoordinate]*Tile{}
-	// snowBorderLeft := float64(SnowBorderSize * TileSize)
-	// snowBorderRight := float64(screenWidth - TileSize*(SnowBorderSize+1))
-	// snowBorderTop := float64(SnowBorderSize * TileSize)
-	// snowBorderBottom := float64(screenHeight - TileSize*(SnowBorderSize+1))
-	// for _, coord := range tileCoordinates {
-	// 	screenCoordX := coord.ToScreenCoordinate().x
-	// 	screenCoordY := coord.ToScreenCoordinate().y
-	// 	if screenCoordX < snowBorderLeft || screenCoordX > snowBorderRight || screenCoordY < snowBorderTop || screenCoordY > snowBorderBottom {
-	// 		if rand.Float64() <= 0.2 {
-	// 			tiles[coord] = &Tile{image: tileSnowSpeckledImage, collidable: false, terrainType: TerrainTypeSnow}
-	// 		} else {
-	// 			tiles[coord] = &Tile{image: tileSnowImage, collidable: false, terrainType: TerrainTypeSnow}
-	// 		}
-	// 	} else if screenCoordX == snowBorderLeft && screenCoordY == snowBorderTop {
-	// 		tiles[coord] = &Tile{image: tileSnowToIceTLImage, collidable: false, terrainType: TerrainTypeSnow}
-	// 	} else if screenCoordX == snowBorderRight && screenCoordY == snowBorderTop {
-	// 		tiles[coord] = &Tile{image: tileSnowToIceTRImage, collidable: false, terrainType: TerrainTypeSnow}
-	// 	} else if screenCoordX == snowBorderLeft && screenCoordY == snowBorderBottom {
-	// 		tiles[coord] = &Tile{image: tileSnowToIceBLImage, collidable: false, terrainType: TerrainTypeSnow}
-	// 	} else if screenCoordX == snowBorderRight && screenCoordY == snowBorderBottom {
-	// 		tiles[coord] = &Tile{image: tileSnowToIceBRImage, collidable: false, terrainType: TerrainTypeSnow}
-	// 	} else if screenCoordX == snowBorderLeft {
-	// 		tiles[coord] = &Tile{image: tileSnowToIceLImage, collidable: false, terrainType: TerrainTypeSnow}
-	// 	} else if screenCoordX == snowBorderRight {
-	// 		tiles[coord] = &Tile{image: tileSnowToIceRImage, collidable: false, terrainType: TerrainTypeSnow}
-	// 	} else if screenCoordY == snowBorderTop {
-	// 		tiles[coord] = &Tile{image: tileSnowToIceTImage, collidable: false, terrainType: TerrainTypeSnow}
-	// 	} else if screenCoordY == snowBorderBottom {
-	// 		tiles[coord] = &Tile{image: tileSnowToIceBImage, collidable: false, terrainType: TerrainTypeSnow}
-	// 	} else if rand.Float64() <= 0.04 {
-	// 		tiles[coord] = &Tile{image: tileIceStreaksImage, collidable: false, terrainType: TerrainTypeIce}
-	// 	} else {
-	// 		tiles[coord] = &Tile{image: tileIceImage, collidable: false, terrainType: TerrainTypeIce}
-	// 	}
-	// }
-
-	// tileGroupIceHole := map[int]Tile{
-	// 	0: {
-	// 		image:      tileIceHoleTLImage,
-	// 		collidable: true,
-	// 	},
-	// 	1: {
-	// 		image:      tileIceHoleTRImage,
-	// 		collidable: true,
-	// 	},
-	// 	2: {
-	// 		image:      tileIceHoleBLImage,
-	// 		collidable: true,
-	// 	},
-	// 	3: {
-	// 		image:      tileIceHoleBRImage,
-	// 		collidable: true,
-	// 	},
-	// }
-
-	// tileGroupIceHoleWide := map[int]Tile{
-	// 	0: {
-	// 		image:      tileIceHoleTLImage,
-	// 		collidable: true,
-	// 	},
-	// 	1: {
-	// 		image:      tileIceHoleTImage,
-	// 		collidable: true,
-	// 	},
-	// 	2: {
-	// 		image:      tileIceHoleTRImage,
-	// 		collidable: true,
-	// 	},
-	// 	3: {
-	// 		image:      tileIceHoleBLImage,
-	// 		collidable: true,
-	// 	},
-	// 	4: {
-	// 		image:      tileIceHoleBImage,
-	// 		collidable: true,
-	// 	},
-	// 	5: {
-	// 		image:      tileIceHoleBRImage,
-	// 		collidable: true,
-	// 	},
-	// }
-
-	// for i := 0; i < 5; i++ {
-	// 	tiles = AddTileGroup(tiles, RandomUnoccupiedIceTileCoordinate(tiles, 2, 4), 2, tileGroupIceHole)
-	// }
-
-	// tiles = AddTileGroup(tiles, RandomUnoccupiedIceTileCoordinate(tiles, 3, 6), 3, tileGroupIceHoleWide)
-
 	return ReadMap()
 }
 

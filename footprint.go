@@ -38,7 +38,7 @@ func (g *Game) AddFootprint(a Actor, v Vector) {
 		})
 
 		a.UpdateDistanceSinceLastFootprint(0, true)
-		g.CheckIceTileForCracking(coord)
+		g.CheckTileForCracking(coord)
 	} else {
 		a.UpdateDistanceSinceLastFootprint(v.len, false)
 	}
