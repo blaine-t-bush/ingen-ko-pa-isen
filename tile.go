@@ -49,10 +49,10 @@ const (
 	TileIceHoleBottomLeft
 	TileIceHoleLeft
 	TileIceHoleTopLeft
-	StepCountThresholdCracked1 = 10
-	StepCountThresholdCracked2 = 20
-	StepCountThresholdCracked3 = 30
-	StepCountThresholdBroken   = 40
+	StepCountThresholdCracked1 = 5
+	StepCountThresholdCracked2 = 10
+	StepCountThresholdCracked3 = 15
+	StepCountThresholdBroken   = 20
 )
 
 var (
@@ -102,7 +102,7 @@ var (
 		TileIceWithCracks1:                false,
 		TileIceWithCracks2:                false,
 		TileIceWithCracks3:                false,
-		TileIceBroken:                     true,
+		TileIceBroken:                     false,
 		TileSnow:                          false,
 		TileSnowWithSpeckles:              false,
 		TileSnowIceTop:                    false,
