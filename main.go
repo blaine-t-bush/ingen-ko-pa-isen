@@ -25,8 +25,8 @@ type Game struct {
 }
 
 const (
-	screenWidth  = 1280
-	screenHeight = 960
+	screenWidth  = 1024
+	screenHeight = 768
 )
 
 var (

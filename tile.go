@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"image"
 	"log"
 	"math"
 	"math/rand"
@@ -11,7 +12,7 @@ import (
 )
 
 const (
-	TileSize                   = 20
+	TileSize                   = 16
 	StepCountThresholdCracked1 = 5
 	StepCountThresholdCracked2 = 10
 	StepCountThresholdCracked3 = 15
@@ -89,6 +90,12 @@ var (
 		"I": TileIce,
 		"S": TileSnow,
 		"W": TileWater,
+	}
+
+	TileSheetPositions = map[int]ScreenCoordinate{
+		TileIce:   {0, 0},
+		TileSnow:  {0, 16},
+		TileWater: {0, 32},
 	}
 
 	TileImage = map[int]*ebiten.Image{
@@ -243,6 +250,8 @@ type Tile struct {
 }
 
 func ReadMap() map[TileCoordinate]*Tile {
+	tileSheet := PrepareImage("./assets/tiles/tile_sheet.png", &ebiten.DrawImageOptions{})
+
 	file, err := os.Open("./maps/default.map")
 	if err != nil {
 		log.Fatal(err)
@@ -259,8 +268,9 @@ func ReadMap() map[TileCoordinate]*Tile {
 			}
 			tileNumber := TileSymbols[string(symbol)]
 			tileCoordinate := TileCoordinate{colIndex, rowIndex}
+			tileSheetPosition := TileSheetPositions[tileNumber]
 			tiles[tileCoordinate] = &Tile{
-				image:       TileImage[tileNumber],
+				image:       tileSheet.SubImage(image.Rect(int(tileSheetPosition.x), int(tileSheetPosition.y), int(tileSheetPosition.x)+16, int(tileSheetPosition.y)+16)).(*ebiten.Image),
 				collidable:  TileCollidable[tileNumber],
 				terrainType: TileTerrainType[tileNumber],
 				stepCount:   0,
