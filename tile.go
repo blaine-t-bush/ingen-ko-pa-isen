@@ -17,6 +17,9 @@ const (
 	TerrainTypeSnow
 	TileIce = iota
 	TileIceWithStreaks
+	TileIceWithCracks1
+	TileIceWithCracks2
+	TileIceWithCracks3
 	TileSnow
 	TileSnowWithSpeckles
 	TileSnowIceTop
@@ -45,6 +48,9 @@ const (
 	TileIceHoleBottomLeft
 	TileIceHoleLeft
 	TileIceHoleTopLeft
+	StepCountThresholdCracked1 = 10
+	StepCountThresholdCracked2 = 20
+	StepCountThresholdCracked3 = 30
 )
 
 var (
@@ -56,6 +62,9 @@ var (
 	TileImage = map[int]*ebiten.Image{
 		TileIce:                           PrepareImage("./assets/tiles/ice.png", &ebiten.DrawImageOptions{}),
 		TileIceWithStreaks:                PrepareImage("./assets/tiles/ice_streaks.png", &ebiten.DrawImageOptions{}),
+		TileIceWithCracks1:                PrepareImage("./assets/tiles/ice_cracks_1.png", &ebiten.DrawImageOptions{}),
+		TileIceWithCracks2:                PrepareImage("./assets/tiles/ice_cracks_2.png", &ebiten.DrawImageOptions{}),
+		TileIceWithCracks3:                PrepareImage("./assets/tiles/ice_cracks_3.png", &ebiten.DrawImageOptions{}),
 		TileSnow:                          PrepareImage("./assets/tiles/snow.png", &ebiten.DrawImageOptions{}),
 		TileSnowWithSpeckles:              PrepareImage("./assets/tiles/snow_speckled.png", &ebiten.DrawImageOptions{}),
 		TileSnowIceTop:                    PrepareImage("./assets/tiles/snow_ice_top.png", &ebiten.DrawImageOptions{}),
@@ -89,6 +98,9 @@ var (
 	TileCollidable = map[int]bool{
 		TileIce:                           false,
 		TileIceWithStreaks:                false,
+		TileIceWithCracks1:                false,
+		TileIceWithCracks2:                false,
+		TileIceWithCracks3:                false,
 		TileSnow:                          false,
 		TileSnowWithSpeckles:              false,
 		TileSnowIceTop:                    false,
@@ -122,6 +134,9 @@ var (
 	TileTerrainType = map[int]int{
 		TileIce:                           TerrainTypeIce,
 		TileIceWithStreaks:                TerrainTypeIce,
+		TileIceWithCracks1:                TerrainTypeIce,
+		TileIceWithCracks2:                TerrainTypeIce,
+		TileIceWithCracks3:                TerrainTypeIce,
 		TileSnow:                          TerrainTypeSnow,
 		TileSnowWithSpeckles:              TerrainTypeSnow,
 		TileSnowIceTop:                    TerrainTypeSnow,
@@ -162,6 +177,7 @@ type Tile struct {
 	image       *ebiten.Image
 	collidable  bool
 	terrainType int
+	stepCount   int
 }
 
 func ReadMap() map[TileCoordinate]*Tile {
@@ -185,6 +201,7 @@ func ReadMap() map[TileCoordinate]*Tile {
 				image:       TileImage[tileNumber],
 				collidable:  TileCollidable[tileNumber],
 				terrainType: TileTerrainType[tileNumber],
+				stepCount:   0,
 			}
 		}
 		rowIndex++
@@ -272,6 +289,7 @@ func ReadMap() map[TileCoordinate]*Tile {
 						image:       TileImage[newTileNumber],
 						collidable:  TileCollidable[newTileNumber],
 						terrainType: TileTerrainType[newTileNumber],
+						stepCount:   0,
 					}
 				} else {
 					if rand.Float64() <= 0.2 {
@@ -280,6 +298,7 @@ func ReadMap() map[TileCoordinate]*Tile {
 							image:       TileImage[newTileNumber],
 							collidable:  TileCollidable[newTileNumber],
 							terrainType: TileTerrainType[newTileNumber],
+							stepCount:   0,
 						}
 					}
 				}
@@ -290,6 +309,7 @@ func ReadMap() map[TileCoordinate]*Tile {
 						image:       TileImage[newTileNumber],
 						collidable:  TileCollidable[newTileNumber],
 						terrainType: TileTerrainType[newTileNumber],
+						stepCount:   0,
 					}
 				}
 			}
@@ -297,6 +317,20 @@ func ReadMap() map[TileCoordinate]*Tile {
 	}
 
 	return tiles
+}
+
+func (g *Game) CheckIceTileForCracking(coord ScreenCoordinate) {
+	if g.tiles[coord.ToTileCoordinate()].terrainType == TerrainTypeIce {
+		g.tiles[coord.ToTileCoordinate()].stepCount++
+		currentStepCount := g.tiles[coord.ToTileCoordinate()].stepCount
+		if currentStepCount >= StepCountThresholdCracked3 {
+			g.tiles[coord.ToTileCoordinate()].image = TileImage[TileIceWithCracks3]
+		} else if currentStepCount >= StepCountThresholdCracked2 {
+			g.tiles[coord.ToTileCoordinate()].image = TileImage[TileIceWithCracks2]
+		} else if currentStepCount >= StepCountThresholdCracked1 {
+			g.tiles[coord.ToTileCoordinate()].image = TileImage[TileIceWithCracks1]
+		}
+	}
 }
 
 func GenerateTiles() map[TileCoordinate]*Tile {
