@@ -47,7 +47,6 @@ func init() {
 	titleImage = PrepareImage("./assets/menu/title.png", op)
 	farmerImage = PrepareImage("./assets/sprites/farmer.png", op)
 	cowImage = PrepareImage("./assets/sprites/cow.png", op)
-	cowPieImage = PrepareImage("./assets/sprites/cow_pie.png", op)
 	treeTrunkImage = PrepareImage("./assets/sprites/tree_trunk.png", op)
 	treeCanopyImage = PrepareImage("./assets/sprites/tree_canopy.png", op)
 	footprintIceImage = PrepareImage("./assets/sprites/footprint_ice.png", op)
@@ -69,11 +68,6 @@ func (g *Game) init() {
 	fmt.Println(" - Creating trees...")
 	for i := 0; i < 8; i++ {
 		g.objects = append(g.objects, g.CreateRandomTree()...)
-	}
-
-	fmt.Println(" - Creating cow pies...")
-	for i := 0; i < 3; i++ {
-		g.objects = append(g.objects, g.CreateRandomCowPie())
 	}
 
 	fmt.Println(" - Creating cows...")

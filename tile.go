@@ -93,9 +93,13 @@ var (
 	}
 
 	TileSheetPositions = map[int]ScreenCoordinate{
-		TileIce:   {0, 0},
-		TileSnow:  {0, 16},
-		TileWater: {0, 32},
+		TileIce:             {0, 0},
+		TileSnow:            {0, 16},
+		TileWater:           {0, 32},
+		TileSnowWaterTop:    {40, 32},
+		TileSnowWaterRight:  {48, 40},
+		TileSnowWaterBottom: {40, 48},
+		TileSnowWaterLeft:   {32, 40},
 	}
 
 	TileImage = map[int]*ebiten.Image{
