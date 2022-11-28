@@ -1,10 +1,9 @@
-module github.com/blaine-t-bush/ingen-ko-pa-isen
+module github.com/blaine-t-bush/ebiten-tiled
 
 go 1.18
 
 require (
-	github.com/google/uuid v1.3.0
-	github.com/hajimehoshi/ebiten/v2 v2.4.12
+	github.com/hajimehoshi/ebiten/v2 v2.4.13
 	github.com/ojrac/opensimplex-go v1.0.2
 	github.com/solarlune/resolv v0.6.0
 )

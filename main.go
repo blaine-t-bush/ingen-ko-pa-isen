@@ -1,190 +1,119 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	_ "image/png"
 	"log"
-	"math/rand"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/solarlune/resolv"
 )
 
-type Game struct {
-	inited            bool
-	op                ebiten.DrawImageOptions
-	numberOfCowsOnIce int
-	farmer            *Actor
-	cows              []*Actor
-	objects           []*Object
-	footprints        []*Object
-	tiles             map[TileCoordinate]*Tile
-}
-
 const (
-	screenWidth  = 1024
-	screenHeight = 768
+	ScreenWidth  = 1024
+	ScreenHeight = 768
+	CellSize     = 1
+	PlayerSize   = 16
+	ActorSize    = 12
+	EntitySize   = 10
 )
 
 var (
-	space              *resolv.Space
-	playerObj          *resolv.Object
-	titleImage         *ebiten.Image
-	farmerImage        *ebiten.Image
-	cowImage           *ebiten.Image
-	cowPieImage        *ebiten.Image
-	treeTrunkImage     *ebiten.Image
-	treeCanopyImage    *ebiten.Image
-	footprintIceImage  *ebiten.Image
-	footprintSnowImage *ebiten.Image
+	playerImage = ebiten.NewImage(PlayerSize, PlayerSize)
+	actorImage  = ebiten.NewImage(ActorSize, ActorSize)
+	entityImage = ebiten.NewImage(EntitySize, EntitySize)
 )
 
-func init() {
-	op := &ebiten.DrawImageOptions{}
-	op.ColorM.Scale(1, 1, 1, 1)
-
-	titleImage = PrepareImage("./assets/menu/title.png", op)
-	farmerImage = PrepareImage("./assets/sprites/farmer.png", op)
-	cowImage = PrepareImage("./assets/sprites/cow.png", op)
-	treeTrunkImage = PrepareImage("./assets/sprites/tree_trunk.png", op)
-	treeCanopyImage = PrepareImage("./assets/sprites/tree_canopy.png", op)
-	footprintIceImage = PrepareImage("./assets/sprites/footprint_ice.png", op)
-	footprintSnowImage = PrepareImage("./assets/sprites/footprint_snow.png", op)
+type Game struct {
+	inited   bool
+	op       *ebiten.DrawImageOptions
+	space    *resolv.Space
+	player   *Actor
+	actors   []*Actor
+	entities []*Entity
+	tiles    map[TileCoord]*Tile
 }
 
-func (g *Game) init() {
+func (g *Game) Init() {
 	defer func() {
 		g.inited = true
 	}()
 
-	space = resolv.NewSpace(screenWidth, screenHeight, 4, 4)
+	// Prepare images
+	g.op = &ebiten.DrawImageOptions{}
+	g.op.ColorM.Scale(1, 1, 1, 1)
+	playerImage.Fill(color.Black)
+	actorImage.Fill(color.White)
+	entityImage.Fill(color.White)
 
-	fmt.Println("Initializing game...")
-	fmt.Println(" - Seeding random number generator...")
-	rand.Seed(time.Now().UnixNano())
+	// Define space
+	g.space = resolv.NewSpace(ScreenWidth, ScreenHeight, CellSize, CellSize)
 
-	fmt.Println(" - Generating tilemap...")
-	g.tiles = GenerateTiles()
+	// Create player struct
+	g.CreatePlayer(playerImage)
 
-	fmt.Println(" - Creating trees...")
-	for i := 0; i < 8; i++ {
-		g.objects = append(g.objects, g.CreateRandomTree()...)
-	}
+	// Create additional actor
+	g.CreateActor(actorImage, 400, 400, float64(actorImage.Bounds().Dx()), float64(actorImage.Bounds().Dy()))
 
-	fmt.Println(" - Creating cows...")
-	for i := 0; i < 5; i++ {
-		g.cows = append(g.cows, g.CreateRandomCow())
-	}
+	// Create entity structs
+	g.CreateEntity(entityImage, 20, 20, float64(entityImage.Bounds().Dx()), float64(entityImage.Bounds().Dy()))
+	g.CreateEntity(entityImage, 80, 20, float64(entityImage.Bounds().Dx()), float64(entityImage.Bounds().Dy()))
+	g.CreateEntity(entityImage, 70, 40, float64(entityImage.Bounds().Dx()), float64(entityImage.Bounds().Dy()))
+	g.CreateEntity(entityImage, 120, 70, float64(entityImage.Bounds().Dx()), float64(entityImage.Bounds().Dy()))
 
-	fmt.Println(" - Creating farmer...")
-	g.farmer = g.CreateFarmer(*farmerImage)
-
-	fmt.Println(" - Calculating current score...")
-	g.UpdateScore()
-
-	fmt.Println("Done initializing. Running game...")
+	// Generate tiles
+	g.GenerateTiles()
 }
 
 func (g *Game) Update() error {
 	if !g.inited {
-		g.init()
+		g.Init()
 	}
 
-	// Listen for mouse inputs.
-	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-		g.HandleMouseLeftClick()
-	}
+	g.HandleKeyPresses()
 
-	// Listen for keyboard inputs.
-	keys := []ebiten.Key{}
-	keys = inpututil.AppendPressedKeys(keys[:0])
-	g.HandleKeyPresses(keys)
-
-	// Update actor positions based on their velocities.
-	g.UpdateCows()
-	g.UpdateFarmer()
-
-	// Update footprints.
-	g.UpdateFootprints()
-
-	// Update score.
-	g.UpdateScore()
+	g.MoveActors()
 
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.NRGBA{0xb5, 0xdd, 0xff, 0xff})
+	screen.Fill(color.NRGBA{0x60, 0x60, 0x60, 0xff})
 
-	// Tiles
-	for coord, tile := range g.tiles {
+	// Render tiles
+	for tileCoord, tile := range g.tiles {
 		g.op.GeoM.Reset()
-		g.op.GeoM.Translate(coord.ScreenCoordinateX(), coord.ScreenCoordinateY())
-		screen.DrawImage(tile.image, &g.op)
+		g.op.GeoM.Translate(float64(tileCoord.X)*TileSize, float64(tileCoord.Y)*TileSize)
+		screen.DrawImage(tile.Image, g.op)
 	}
 
-	// Footprints
-	for index := range g.footprints {
-		s := g.footprints[index]
-		g.op.GeoM.Reset()
-		g.op.GeoM.Translate(s.pos.x, s.pos.y)
-		screen.DrawImage(s.image, &g.op)
-	}
-
-	// Objects: below actors
-	for index := range g.objects {
-		s := g.objects[index]
-		if !s.aboveActors {
-			g.op.GeoM.Reset()
-			g.op.GeoM.Translate(s.pos.x, s.pos.y)
-			screen.DrawImage(s.image, &g.op)
-		}
-	}
-
-	// Cows
-	for index := range g.cows {
-		s := g.cows[index]
-		g.op.GeoM.Reset()
-		g.op.GeoM.Translate(s.pos.x, s.pos.y)
-		screen.DrawImage(s.image, &g.op)
-	}
-
-	// Farmer
+	// Render player
 	g.op.GeoM.Reset()
-	g.op.GeoM.Translate(g.farmer.pos.x, g.farmer.pos.y)
-	screen.DrawImage(g.farmer.image, &g.op)
+	g.op.GeoM.Translate(g.player.Object.X, g.player.Object.Y)
+	screen.DrawImage(g.player.Image, g.op)
 
-	// Objects: above actors
-	for index := range g.objects {
-		s := g.objects[index]
-		if s.aboveActors {
-			g.op.GeoM.Reset()
-			g.op.GeoM.Translate(s.pos.x, s.pos.y)
-			screen.DrawImage(s.image, &g.op)
-		}
+	// Render other actors
+	for _, actor := range g.actors {
+		g.op.GeoM.Reset()
+		g.op.GeoM.Translate(actor.Object.X, actor.Object.Y)
+		screen.DrawImage(actor.Image, g.op)
 	}
 
-	// Title
-	w, _ := titleImage.Size()
-	g.op.GeoM.Reset()
-	g.op.GeoM.Translate(float64(screenWidth)/2-float64(w)/2, 0)
-	screen.DrawImage(titleImage, &g.op)
-
-	// Score
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("kor på isen: %d", g.numberOfCowsOnIce), 10, 5)
+	// Render entities
+	for _, entity := range g.entities {
+		g.op.GeoM.Reset()
+		g.op.GeoM.Translate(entity.Object.X, entity.Object.Y)
+		screen.DrawImage(entity.Image, g.op)
+	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return screenWidth, screenHeight
+	return ScreenWidth, ScreenHeight
 }
 
 func main() {
-	ebiten.SetWindowSize(screenWidth, screenHeight)
-	ebiten.SetWindowTitle("Ingen Ko På Isen!")
+	ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
+	ebiten.SetWindowTitle("My Game")
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
 	}
