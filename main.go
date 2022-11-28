@@ -11,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/solarlune/resolv"
 )
 
 type Game struct {
@@ -30,6 +31,8 @@ const (
 )
 
 var (
+	space              *resolv.Space
+	playerObj          *resolv.Object
 	titleImage         *ebiten.Image
 	farmerImage        *ebiten.Image
 	cowImage           *ebiten.Image
@@ -57,6 +60,8 @@ func (g *Game) init() {
 	defer func() {
 		g.inited = true
 	}()
+
+	space = resolv.NewSpace(screenWidth, screenHeight, 4, 4)
 
 	fmt.Println("Initializing game...")
 	fmt.Println(" - Seeding random number generator...")

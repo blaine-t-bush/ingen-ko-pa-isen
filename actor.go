@@ -51,27 +51,42 @@ func (g *Game) CheckMovementActor(a Actor, velocityDesired Vector) Vector {
 	} else {
 		newVelocity.SetXY(ScreenCoordinate{x: velocityDesired.X(), y: velocityDesired.Y()})
 	}
-
+	newVelocity.SetXY(ScreenCoordinate{x: velocityDesired.X(), y: velocityDesired.Y()})
 	newVelocity.BoundLength(a.speedMax)
 
-	// check if move would result in collision
-	newPosX := &ScreenCoordinate{a.pos.x + newVelocity.X(), a.pos.y}
-	newPosY := &ScreenCoordinate{a.pos.x, a.pos.y + newVelocity.Y()}
-	newPosXY := &ScreenCoordinate{a.pos.x + newVelocity.X(), a.pos.y + newVelocity.Y()}
-
-	validX := !g.CheckCollision(BoundingBox{pos: *newPosX, width: a.width, height: a.height})
-	validY := !g.CheckCollision(BoundingBox{pos: *newPosY, width: a.width, height: a.height})
-	validXY := !g.CheckCollision(BoundingBox{pos: *newPosXY, width: a.width, height: a.height})
-
-	if !validXY {
-		if validX && !validY {
-			newVelocity.RemoveY()
-		} else if validY && !validX {
-			newVelocity.RemoveX()
-		} else {
-			newVelocity = Vector{0, 0}
-		}
+	// check collision
+	collisionX := playerObj.Check(newVelocity.X(), 0)
+	if collisionX != nil {
+		newVelocity.SetXY(ScreenCoordinate{x: collisionX.ContactWithObject(collisionX.Objects[0]).X(), y: newVelocity.Y()})
 	}
+	playerObj.X += newVelocity.X()
+	playerObj.Update()
+
+	collisionY := playerObj.Check(0, newVelocity.Y())
+	if collisionY != nil {
+		newVelocity.SetXY(ScreenCoordinate{x: newVelocity.X(), y: collisionY.ContactWithObject(collisionY.Objects[0]).Y()})
+	}
+	playerObj.Y += newVelocity.Y()
+	playerObj.Update()
+
+	// // check if move would result in collision
+	// newPosX := &ScreenCoordinate{a.pos.x + newVelocity.X(), a.pos.y}
+	// newPosY := &ScreenCoordinate{a.pos.x, a.pos.y + newVelocity.Y()}
+	// newPosXY := &ScreenCoordinate{a.pos.x + newVelocity.X(), a.pos.y + newVelocity.Y()}
+
+	// validX := !g.CheckCollision(BoundingBox{pos: *newPosX, width: a.width, height: a.height})
+	// validY := !g.CheckCollision(BoundingBox{pos: *newPosY, width: a.width, height: a.height})
+	// validXY := !g.CheckCollision(BoundingBox{pos: *newPosXY, width: a.width, height: a.height})
+
+	// if !validXY {
+	// 	if validX && !validY {
+	// 		newVelocity.RemoveY()
+	// 	} else if validY && !validX {
+	// 		newVelocity.RemoveX()
+	// 	} else {
+	// 		newVelocity = Vector{0, 0}
+	// 	}
+	// }
 
 	return newVelocity
 }

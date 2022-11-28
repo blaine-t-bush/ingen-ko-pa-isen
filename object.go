@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/solarlune/resolv"
 )
 
 type Object struct {
@@ -75,6 +76,8 @@ func (g *Game) CreateRandomTree() []*Object {
 		collidable:  true,
 		aboveActors: false,
 	}
+
+	space.Add(resolv.NewObject(trunk.pos.x, trunk.pos.y, boundingBox.width, boundingBox.height))
 
 	wCanopy, hCanopy := treeCanopyImage.Size()
 

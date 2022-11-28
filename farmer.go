@@ -4,6 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/solarlune/resolv"
 )
 
 const (
@@ -32,6 +33,9 @@ func (g *Game) CreateFarmer(img ebiten.Image) *Actor {
 			break
 		}
 	}
+
+	playerObj = resolv.NewObject(boundingBox.pos.x, boundingBox.pos.y, boundingBox.width, boundingBox.height)
+	space.Add(playerObj)
 
 	distanceSinceLastFootprint := 0.0
 
