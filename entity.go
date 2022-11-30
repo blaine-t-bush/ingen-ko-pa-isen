@@ -36,17 +36,18 @@ func (g *Game) CreateEntity(img *ebiten.Image, x, y, w, h float64, isCollidable 
 	return nil
 }
 
-func (g *Game) CreateTree() error {
+func (g *Game) CreateTree(bottom, center int) error {
 	// Create tree trunk (collidable)
 	wTrunk, hTrunk := imageTreeTrunk.Size()
-	xTrunk, yTrunk := GetRandomCoordinate()
+	xTrunk := center - wTrunk/2
+	yTrunk := bottom - hTrunk
 	g.CreateEntity(imageTreeTrunk, float64(xTrunk), float64(yTrunk), float64(wTrunk), float64(hTrunk), true)
 
 	// Create tree trunk (not collidable)
 	wCanopy, hCanopy := imageTreeCanopy.Size()
-	xCanopy := xTrunk + (wTrunk-wCanopy)/2
+	xCanopy := center - wCanopy/2
 	yCanopy := yTrunk - hCanopy
-	g.CreateEntity(imageTreeCanopy, float64(xCanopy), float64(yCanopy), float64(wCanopy), float64(hCanopy), true)
+	g.CreateEntity(imageTreeCanopy, float64(xCanopy), float64(yCanopy), float64(wCanopy), float64(hCanopy), false)
 
 	return nil
 }

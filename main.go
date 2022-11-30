@@ -56,7 +56,7 @@ func (g *Game) Init() {
 	g.CreateActor(actorImage, 400, 400, float64(actorImage.Bounds().Dx()), float64(actorImage.Bounds().Dy()))
 
 	// Create entity structs
-	g.CreateTree()
+	g.CreateTree(GetRandomCoordinate())
 	g.CreateEntity(entityImage, 20, 20, float64(entityImage.Bounds().Dx()), float64(entityImage.Bounds().Dy()), true)
 	g.CreateEntity(entityImage, 80, 20, float64(entityImage.Bounds().Dx()), float64(entityImage.Bounds().Dy()), true)
 	g.CreateEntity(entityImage, 70, 40, float64(entityImage.Bounds().Dx()), float64(entityImage.Bounds().Dy()), true)
