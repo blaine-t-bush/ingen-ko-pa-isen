@@ -1,8 +1,6 @@
 package main
 
 import (
-	"math/rand"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
 )
@@ -12,7 +10,8 @@ type Actor struct {
 	Image  *ebiten.Image
 	SpeedX float64
 	SpeedY float64
-	Noise  Noise
+	NoiseX Noise
+	NoiseY Noise
 }
 
 func (g *Game) CreateActor(img *ebiten.Image, x, y, w, h float64) error {
@@ -20,11 +19,16 @@ func (g *Game) CreateActor(img *ebiten.Image, x, y, w, h float64) error {
 	actor := &Actor{
 		Object: resolv.NewObject(x, y, w, h, "actor", "collidable"),
 		Image:  img,
-		SpeedX: GetRandomSpeed(),
-		SpeedY: GetRandomSpeed(),
-		Noise:  GenerateNoise(100, 100),
+		SpeedX: 0,
+		SpeedY: 0,
+		NoiseX: GenerateNoise(50, 50),
+		NoiseY: GenerateNoise(50, 50),
 	}
 	g.actors = append(g.actors, actor)
+
+	// Use noise to determine speed.
+	actor.SpeedX = actor.NoiseX.GetValue()
+	actor.SpeedY = actor.NoiseY.GetValue()
 
 	// Add player object to space
 	g.space.Add(actor.Object)
@@ -50,18 +54,8 @@ func (g *Game) MoveActor(a *Actor, dx, dy float64) {
 
 func (g *Game) MoveActors() {
 	for _, actor := range g.actors {
-		if rand.Float64() <= 0.025 {
-			actor.SpeedX = GetRandomSpeed()
-		}
-
-		if rand.Float64() <= 0.025 {
-			actor.SpeedY = GetRandomSpeed()
-		}
-
+		actor.SpeedX = actor.NoiseX.UpdateAndGetValue()
+		actor.SpeedY = actor.NoiseY.UpdateAndGetValue()
 		g.MoveActor(actor, actor.SpeedX, actor.SpeedY)
 	}
-}
-
-func GetRandomSpeed() float64 {
-	return 0.5 * (1 - 2*rand.Float64())
 }

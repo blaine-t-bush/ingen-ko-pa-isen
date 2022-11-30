@@ -4,6 +4,8 @@ import (
 	"image/color"
 	_ "image/png"
 	"log"
+	"math/rand"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
@@ -39,15 +41,21 @@ func (g *Game) Init() {
 		g.inited = true
 	}()
 
+	// Seed random number generator
+	rand.Seed(time.Now().UnixNano())
+
 	// Prepare images
 	g.op = &ebiten.DrawImageOptions{}
 	g.op.ColorM.Scale(1, 1, 1, 1)
-	playerImage.Fill(color.Black)
-	actorImage.Fill(color.White)
-	entityImage.Fill(color.White)
+	playerImage.Fill(color.NRGBA{0x00, 0x00, 0x00, 0xff})
+	actorImage.Fill(color.NRGBA{0x60, 0x60, 0x60, 0xff})
+	entityImage.Fill(color.NRGBA{0x60, 0x60, 0x60, 0xff})
 
 	// Define space
 	g.space = resolv.NewSpace(ScreenWidth, ScreenHeight, CellSize, CellSize)
+
+	// Create world borders
+	g.CreateBorders()
 
 	// Create player struct
 	g.CreatePlayer(playerImage)
