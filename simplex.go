@@ -15,7 +15,7 @@ type Noise struct {
 	y     int
 }
 
-func GenerateNoise(w, h int) Noise {
+func GenerateNoise(w, h int, minValue, maxValue float64) Noise {
 	noise := opensimplex.NewNormalized(rand.Int63())
 	image := make([][]float64, h)
 	for i := range image {
@@ -31,7 +31,7 @@ func GenerateNoise(w, h int) Noise {
 	}
 
 	noiseStruct := Noise{image: image, w: w, h: h, x: rand.Intn(w), y: rand.Intn(h)}
-	noiseStruct.Normalize()
+	noiseStruct.Rescale(minValue, maxValue)
 
 	return noiseStruct
 }
@@ -88,6 +88,20 @@ func (n *Noise) Normalize() {
 	for y := 0; y < n.h; y++ {
 		for x := 0; x < n.w; x++ {
 			n.image[y][x] = (copy.image[y][x] - min) / delta
+		}
+	}
+}
+
+func (n *Noise) Rescale(newMin, newMax float64) {
+	copy := *n
+	min := n.Min()
+	max := n.Max()
+	delta := max - min
+	newDelta := newMax - newMin
+
+	for y := 0; y < n.h; y++ {
+		for x := 0; x < n.w; x++ {
+			n.image[y][x] = newDelta * (copy.image[y][x] - min) / delta
 		}
 	}
 }

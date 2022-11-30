@@ -21,14 +21,13 @@ func (g *Game) CreateActor(img *ebiten.Image, x, y, w, h float64) error {
 		Image:  img,
 		SpeedX: 0,
 		SpeedY: 0,
-		NoiseX: GenerateNoise(50, 50),
-		NoiseY: GenerateNoise(50, 50),
+		NoiseX: GenerateNoise(50, 50, -1, 1),
+		NoiseY: GenerateNoise(50, 50, -1, 1),
 	}
 	g.actors = append(g.actors, actor)
 
 	// Use noise to determine speed.
-	actor.SpeedX = actor.NoiseX.GetValue()
-	actor.SpeedY = actor.NoiseY.GetValue()
+	actor.UpdateSpeed()
 
 	// Add player object to space
 	g.space.Add(actor.Object)
@@ -54,8 +53,12 @@ func (g *Game) MoveActor(a *Actor, dx, dy float64) {
 
 func (g *Game) MoveActors() {
 	for _, actor := range g.actors {
-		actor.SpeedX = actor.NoiseX.UpdateAndGetValue()
-		actor.SpeedY = actor.NoiseY.UpdateAndGetValue()
+		actor.UpdateSpeed()
 		g.MoveActor(actor, actor.SpeedX, actor.SpeedY)
 	}
+}
+
+func (a *Actor) UpdateSpeed() {
+	a.SpeedX = a.NoiseX.UpdateAndGetValue()
+	a.SpeedY = a.NoiseY.UpdateAndGetValue()
 }
