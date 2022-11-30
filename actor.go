@@ -12,6 +12,7 @@ type Actor struct {
 	Image  *ebiten.Image
 	SpeedX float64
 	SpeedY float64
+	Noise  Noise
 }
 
 func (g *Game) CreateActor(img *ebiten.Image, x, y, w, h float64) error {
@@ -21,6 +22,7 @@ func (g *Game) CreateActor(img *ebiten.Image, x, y, w, h float64) error {
 		Image:  img,
 		SpeedX: GetRandomSpeed(),
 		SpeedY: GetRandomSpeed(),
+		Noise:  GenerateNoise(100, 100),
 	}
 	g.actors = append(g.actors, actor)
 
