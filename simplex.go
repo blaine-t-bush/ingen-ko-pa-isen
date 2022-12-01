@@ -31,6 +31,8 @@ func GenerateNoise(w, h int, minValue, maxValue float64) Noise {
 	}
 
 	noiseStruct := Noise{image: image, w: w, h: h, x: rand.Intn(w), y: rand.Intn(h)}
+	noiseStruct.Normalize()
+	noiseStruct.ShiftMean((maxValue + minValue) / 2)
 	noiseStruct.Rescale(minValue, maxValue)
 
 	return noiseStruct
@@ -92,6 +94,26 @@ func (n *Noise) Normalize() {
 	}
 }
 
+func (n *Noise) ShiftMean(newMean float64) {
+	sum := 0.0
+
+	for y := 0; y < n.h; y++ {
+		for x := 0; x < n.w; x++ {
+			sum += n.image[y][x]
+		}
+	}
+
+	mean := sum / float64(n.h*n.w)
+	meanDiff := mean - newMean
+
+	copy := *n
+	for y := 0; y < n.h; y++ {
+		for x := 0; x < n.w; x++ {
+			n.image[y][x] = (copy.image[y][x] - meanDiff)
+		}
+	}
+}
+
 func (n *Noise) Rescale(newMin, newMax float64) {
 	copy := *n
 	min := n.Min()
@@ -101,7 +123,7 @@ func (n *Noise) Rescale(newMin, newMax float64) {
 
 	for y := 0; y < n.h; y++ {
 		for x := 0; x < n.w; x++ {
-			n.image[y][x] = newDelta * (copy.image[y][x] - min) / delta
+			n.image[y][x] = newDelta * copy.image[y][x] / delta
 		}
 	}
 }
